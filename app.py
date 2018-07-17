@@ -27,7 +27,7 @@ def handle_my_custom_event(json):
 
 @app.route('/lib/<path:path>')
 def send_js(path):
-    return send_from_directory('static/lib', path)
+    return send_from_directory('static/vendor', path)
 
 @app.route('/data/<path:path>')
 def send_data(path):
@@ -52,7 +52,7 @@ def register():
         flash(error)
         
     return render_template('register.html')
-    
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
