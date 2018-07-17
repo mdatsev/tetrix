@@ -1,23 +1,38 @@
 // @ts-check
-/// <reference path="../lib/p5.d.ts" />
+/// <reference path="../vendor/p5.d.ts" />
 new p5(( /** @type {p5} */ p) => {
 
     class Mino {
-        constructor(tiles, textures, center, x, y, tile_size) {
-            this.tiles = tiles
+        constructor(rotations, textures, x, y, tile_size) {
+            this.rotations = rotations
             this.textures = textures
-            this.center = center
             this.x = x
             this.y = y
             this.tile_size = tile_size
+            this.current_rotation = 0
         }
 
         render() {
-            for (const tile of this.tiles) {
-                const ts = this.tile_size;
-                p.fill(255)
+            const tiles = this.rotations[this.current_rotation]
+            const ts = this.tile_size;
+            p.fill(255)
+            for(const tile of tiles) {
                 p.rect(ts * (this.x + tile[0]), ts * (this.y + tile[1]), ts, ts)
             }
+        }
+
+        rotate_cw() {
+            if(++this.current_rotation > this.rotations.length - 1)
+                this.current_rotation = 0
+        }
+
+        rotate_ccw() {
+            if(--this.current_rotation < 0)
+                this.current_rotation = this.rotations.length - 1
+        }
+
+        get_solid_tiles() {
+            
         }
     }
 
@@ -39,24 +54,39 @@ new p5(( /** @type {p5} */ p) => {
         }
 
         spawn_mino() {
-            this.active_mino = new Mino(SRS_tiles[p.random([...'LJSZTOI'])][0], null, null, this.width / 2, 0, this.tile_size)
+            const srs_mino = SRS_tiles[p.random([...'LJSZTOI'])]
+            this.active_mino = new Mino(srs_mino, null, Math.floor((this.width - srs_mino.length) / 2), 0, this.tile_size)
+        }
+
+        lock_mino() {
+            this.fallen_minos.push(this.active_mino);
         }
 
         update() {
             this.time = performance.now()
             if(this.active_mino instanceof Mino) {
-                if(this.time - this.last_drop_tick > 1000)
+                if(this.time - this.last_drop_tick > 400)
                 {
                     this.active_mino.y++
+                    this.rotate_ccw()
+                    if(this.active_mino.y > this.height - 4) {
+                        this.lock_mino()
+                        this.spawn_mino()
+                    }
                     this.last_drop_tick = performance.now()
                 }
             }
             else {
                 this.spawn_mino()
             }
-            for (const mino of this.fallen_minos) {
-                
-            }
+        }
+
+        rotate_cw() {
+            this.active_mino.rotate_cw()
+        }
+
+        rotate_ccw() {
+            this.active_mino.rotate_ccw()
         }
 
     }
