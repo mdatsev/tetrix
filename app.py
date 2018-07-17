@@ -9,16 +9,15 @@ def send_js(path):
 @app.route('/data/<path:path>')
 def send_data(path):
     return send_from_directory('static/data', path)
-
-@app.route('/')
-def hello():
-    return 'Hello, World'
-
-@app.route('/hello',  methods=['GET'])
-def index():
-    return 'Index Page'
-
-@app.route('/register', methods=['GET', 'POST'])
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+import json
+app.secret_key = "super secret"
+cred = credentials.Certificate("./config/secrets/serviceAccountKey.json")
+firebase_admin.initialize_app(cred, options={"databaseURL":"https://tetrix-1d1fc.firebaseio.com/"})
+users = db.reference('users')
+@app.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -28,18 +27,28 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required'
-        #flash(error)
+        users.push({
+            "username": username,
+            "password": generate_password_hash(password)
+        })
         if error is None:
-            return redirect(url_for('.login', username=username, password=generate_password_hash(password)))
+            return redirect(url_for('.login'))
+        flash(error)
+        
     return render_template('register.html')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    usernameRedir = request.args['username']
-    passwordRedir = request.args['password']
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         error = None
+        logging_user = list(users.order_by_child('username').equal_to(username).get().items())
+        session.clear()
+        session['user_id'] = logging_user[0][0]
+        if error == None and check_password_hash(logging_user[0][1]['password'], password):
+            return "Logged!"
+        flash(error)
+    return render_template('login.html')
 
         if error is None:
             session.clear()
