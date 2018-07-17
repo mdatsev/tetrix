@@ -1,4 +1,5 @@
 from flask import Flask, flash, g, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 
 @app.route('/')
@@ -19,7 +20,7 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required'
-        flash(error)
+        #flash(error)
         if error is None:
             return redirect(url_for('.login', username=username, password=generate_password_hash(password)))
     return render_template('register.html')
@@ -37,7 +38,7 @@ def login():
             session['user_id'] = user['id']
             return redirect(url_for('index'))
 
-        flash(error)
+        #flash(error)
 
     return render_template('login.html', username=usernameRedir, password= passwordRedir)
 app.run()
