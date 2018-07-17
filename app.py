@@ -3,6 +3,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
+import json
+
 app = Flask(__name__)
 app.secret_key = "super secret"
 cred = credentials.Certificate("./config/secrets/serviceAccountKey.json")
@@ -33,7 +35,14 @@ def login():
         username = request.form['username']
         password = request.form['password']
         error = None
-        if error == None and check_password_hash(list(users.order_by_child('username').equal_to(username).get().items())[0][1]['password'], password):
+        logging_user = list(users.order_by_child('username').equal_to(username).get().items())
+        session.clear()
+        session['user_id'] = logging_user[0][0]
+        if error == None and check_password_hash(logging_user[0][1]['password'], password):
             return "Logged!"
         flash(error)
     return render_template('login.html')
+
+@app.route('/test', methods=['GET'])
+def test_session():
+    return json.dumps(users.child(session['user_id']).get())
