@@ -8,12 +8,15 @@ from firebase_admin import db
 import json
 import datetime
 
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__, static_url_path='', template_folder="templates")
 
 app.secret_key = "super secret"
 
 socketio = SocketIO(app)
 
+
+if __name__ == '__main__':
+    socketio.run(app)
 
 cred = credentials.Certificate("./config/secrets/serviceAccountKey.json")
 firebase_admin.initialize_app(cred, options={"databaseURL":"https://tetrix-1d1fc.firebaseio.com/"})
@@ -26,7 +29,7 @@ def handle_my_custom_event(json):
 
 @app.route('/', methods=['GET'])
 def index():
-    return "Welcome to Tetrix!"
+    return render_template('index.html')
 @app.route('/lib/<path:path>')
 def send_js(path):
     return send_from_directory('static/vendor', path)
@@ -73,6 +76,8 @@ def login():
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     return render_template('game.html')
+
 if __name__ == '__main__':
     socketio.run(app)
     app.run()
+    #app.run(port=3100)

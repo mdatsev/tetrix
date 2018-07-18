@@ -26,13 +26,14 @@
 
 body, html {
 	height: 100%;
-	font-family: JosefinSans-Bold, sans-serif;
+  font-family: JosefinSans-Bold, sans-serif;
+  background-image:url('tetrix.png');
 }
 
 /*---------------------------------------------*/
 a {
 	font-family: JosefinSans-Bold;
-	font-size: 14px;
+	font-size: 30px;
 	line-height: 1.7;
 	color: #666666;
 	margin: 0px;
