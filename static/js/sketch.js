@@ -58,7 +58,7 @@ new p5(( /** @type {p5} */ p) => {
         }
 
         clone() {
-            const m = new Mino(this.rotations.slice(0), this.textures, this.x, this.y, this.tile_size);
+            const m = new Mino(this.rotations.slice(0), this.textures, this.x, this.y, this.tile_size, this.skin);
             m.current_rotation = this.current_rotation;
             return m;
         }
@@ -66,12 +66,14 @@ new p5(( /** @type {p5} */ p) => {
 
     class Tetris {
         constructor() {
-            this.width = 15
+            this.width = 10
             this.height = 22
-            this.tile_size = 25     
+            this.tile_size = 25
             this.active_mino = null
             this.fallen_minos = []
             this.dead = false
+            this.right_pressed_time = Infinity
+            this.left_pressed_time = Infinity
         }
 
         render() {
@@ -80,7 +82,6 @@ new p5(( /** @type {p5} */ p) => {
                 mino.render()
             }
             p.fill([255, 0, 0])
-            let ts = 20;
             
             this.active_mino.render()
             this.render_ghost()
@@ -109,6 +110,18 @@ new p5(( /** @type {p5} */ p) => {
 
         update() {
             this.time = performance.now()
+            if(this.time - this.right_pressed_time > 119)
+            {
+                while(this.rightPressed())
+                    ;
+                this.right_pressed_time = Infinity
+            }
+            if(this.time - this.left_pressed_time > 119)
+            {
+                while(this.leftPressed())
+                    ;
+                this.left_pressed_time = Infinity
+            }
             if(this.active_mino instanceof Mino) {
                 if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 50 : 400))
                 {
@@ -122,10 +135,6 @@ new p5(( /** @type {p5} */ p) => {
         }
 
         tick_down(spawn = true, mino = this.active_mino) {
-            if(mino == this.active_mino)
-            {
-                console.log("asd")
-            }
             mino.y++
             if(this.mino_collides(mino)) {
                 mino.y--
@@ -200,21 +209,31 @@ new p5(( /** @type {p5} */ p) => {
         leftPressed() {
             this.active_mino.x--;
             if(this.mino_collides())
+            {
                 this.active_mino.x++;
+                return false
+            }
+            this.left_pressed_time = performance.now()
+            return true
         }
 
         leftReleased() {
-
+            this.left_pressed_time = Infinity
         }
 
         rightPressed() {
             this.active_mino.x++;
             if(this.mino_collides())
+            {
                 this.active_mino.x--;
+                return false
+            }
+            this.right_pressed_time = performance.now()
+            return true
         }
 
         rightReleased() {
-
+            this.right_pressed_time = Infinity
         }
 
         softDropPressed() {
