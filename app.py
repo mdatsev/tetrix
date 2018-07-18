@@ -76,10 +76,8 @@ def login():
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     return render_template('game.html')
-<<<<<<< HEAD
-app.run(port=3100)
-=======
+
 if __name__ == '__main__':
     socketio.run(app)
     app.run()
->>>>>>> 77369dbfb96b08d4bbc34569d3a8b86b0e3a6d78
+    #app.run(port=3100)
