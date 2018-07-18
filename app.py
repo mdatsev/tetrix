@@ -29,7 +29,7 @@ def handle_my_custom_event(json):
 
 @app.route('/', methods=['GET'])
 def index():
-    return "Welcome to Tetrix!"
+    return render_template('index.html')
 @app.route('/lib/<path:path>')
 def send_js(path):
     return send_from_directory('static/vendor', path)
