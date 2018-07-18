@@ -1,11 +1,12 @@
 from flask import Flask, flash, g, redirect, render_template, request, session, url_for, send_from_directory
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask import Flask, render_template
+from flask import Flask, render_template, make_response
 from flask_socketio import SocketIO
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 import json
+import datetime
 
 app = Flask(__name__, static_url_path='')
 
@@ -13,8 +14,6 @@ app.secret_key = "super secret"
 
 socketio = SocketIO(app)
 
-if __name__ == '__main__':
-    socketio.run(app)
 
 cred = credentials.Certificate("./config/secrets/serviceAccountKey.json")
 firebase_admin.initialize_app(cred, options={"databaseURL":"https://tetrix-1d1fc.firebaseio.com/"})
@@ -25,6 +24,9 @@ users = db.reference('users')
 def handle_my_custom_event(json):
     print('received json: ' + str(json))
 
+@app.route('/', methods=['GET'])
+def index():
+    return "Welcome to Tetrix!"
 @app.route('/lib/<path:path>')
 def send_js(path):
     return send_from_directory('static/vendor', path)
@@ -50,28 +52,27 @@ def register():
         if error is None:
             return redirect(url_for('.login'))
         flash(error)
-        
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    print("asd")
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         error = None
         logging_user = list(users.order_by_child('username').equal_to(username).get().items())
+        print(logging_user[0][0])
         if error == None and check_password_hash(logging_user[0][1]['password'], password):
             session.clear()
-            session['user_id'] = logging_user['id']
-            return redirect(url_for('index'))
+            session['user'] = logging_user[0][0]
+            return redirect('/game')
         flash(error)
     return render_template('login.html')
-
-        #flash(error)
-
-    return render_template('login.html', username=usernameRedir, password= passwordRedir)
 
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     return render_template('game.html')
-app.run()
+if __name__ == '__main__':
+    socketio.run(app)
+    app.run()
