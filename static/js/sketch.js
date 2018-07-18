@@ -72,6 +72,8 @@ new p5(( /** @type {p5} */ p) => {
             this.active_mino = null
             this.fallen_minos = []
             this.dead = false
+            this.right_pressed_time = Infinity
+            this.left_pressed_time = Infinity
         }
 
         render() {
@@ -123,10 +125,6 @@ new p5(( /** @type {p5} */ p) => {
         }
 
         tick_down(spawn = true, mino = this.active_mino) {
-            if(mino == this.active_mino)
-            {
-                console.log("asd")
-            }
             mino.y++
             if(this.mino_collides(mino)) {
                 mino.y--
