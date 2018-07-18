@@ -1,29 +1,42 @@
-{% extends 'base.html' %}
-<div class="container-contact100">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <title>Tetrix</title>
+</head>
+  <body>
+  <div class="container-contact100">
 
-		<div class="wrap-contact100">
-    {% block content %}
-			<form class="contact100-form validate-form" method="post", action="/login">
-				<span class="contact100-form-title">
-          Log in
-        </span>
+      <div class="wrap-contact100">
+      {% block content %}
+        <form class="contact100-form validate-form" method="post", action="/login">
+          <span class="contact100-form-title">
+            Log in
+          </span>
 
-				<div class="wrap-input100 validate-input">
-					<input class="input100" type="text" name="username" placeholder="Username">
-					<span class="focus-input100-1"></span>
-					<span class="focus-input100-2"></span>
-				</div>
+          <div class="wrap-input100 validate-input">
+            <input class="input100" type="text" name="username" placeholder="Username">
+            <span class="focus-input100-1"></span>
+            <span class="focus-input100-2"></span>
+          </div>
 
-				<div class="wrap-input100 validate-input">
-					<input class="input100" type="password" name="password" placeholder="Password">
-					<span class="focus-input100-1"></span>
-					<span class="focus-input100-2"></span>
-				</div>
+          <div class="wrap-input100 validate-input">
+            <input class="input100" type="password" name="password" placeholder="Password">
+            <span class="focus-input100-1"></span>
+            <span class="focus-input100-2"></span>
+          </div>
 
-				<div class="container-contact100-form-btn">
-          <input type="submit" class="contact100-form-btn" value="Log in">
-				</div>
-      </form>
-      {% endblock %}
-		</div>
-	</div>
+          <div class="container-contact100-form-btn">
+            <input type="submit" class="contact100-form-btn" value="Log in">
+            <a class="contact100-form-btn" href="/register" style="margin-left: 4em">Register</a>
+          </div>
+        </form>
+        {% endblock %}
+      </div>
+    </div>
+  </body>
+</html>
