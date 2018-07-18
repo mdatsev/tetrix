@@ -12,22 +12,22 @@ new p5(( /** @type {p5} */ p) => {
     }
 
     class Mino {
-        constructor(rotations, textures, x, y, tile_size) {
+        constructor(rotations, textures, x, y, tile_size, skin) {
             this.rotations = rotations
             this.textures = textures
             this.x = x
             this.y = y
             this.tile_size = tile_size
             this.current_rotation = 0
+            this.skin = skin 
             this.last_drop_tick = performance.now()
         }
 
         render() {
             const tiles = this.get_tiles_on_board()
             const ts = this.tile_size;
-            p.fill(255)
             for(const tile of tiles) {
-                p.rect(ts * (tile[0]), ts * (tile[1]), ts, ts)
+                p.image(this.skin, ts * (tile[0]), ts * (tile[1]), ts, ts)
             }
         }
 
@@ -66,9 +66,9 @@ new p5(( /** @type {p5} */ p) => {
 
     class Tetris {
         constructor() {
-            this.width = 10
+            this.width = 15
             this.height = 22
-            this.tile_size = 20
+            this.tile_size = 25     
             this.active_mino = null
             this.fallen_minos = []
             this.dead = false
@@ -83,9 +83,7 @@ new p5(( /** @type {p5} */ p) => {
             }
             p.fill([255, 0, 0])
             let ts = 20;
-            for(const tile of this.get_solid_tiles()) {
-                p.rect(ts * (tile[0]), ts * (tile[1]), ts, ts)
-            }
+            
             this.active_mino.render()
             this.render_ghost()
         }
@@ -100,7 +98,8 @@ new p5(( /** @type {p5} */ p) => {
 
         spawn_mino() {
             const srs_mino = SRS_tiles[p.random([...'LJSZTOI'])].slice(0)
-            this.active_mino = new Mino(srs_mino, null, Math.floor((this.width - srs_mino.length) / 2), 0, this.tile_size)
+            let skin = p.loadImage("textures/skin"+(Math.floor(Math.random() * 4)+1).toString()+".png");
+            this.active_mino = new Mino(srs_mino, null, Math.floor((this.width - srs_mino.length) / 2), 0, this.tile_size, skin)
             
             if(this.mino_collides())
                 this.dead = true

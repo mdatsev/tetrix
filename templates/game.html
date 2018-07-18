@@ -7,8 +7,7 @@
     <script src="lib/p5.min.js"></script>
     <script src="lib/addons/p5.dom.min.js"></script>
     <script src="lib/addons/p5.sound.min.js"></script>
-    
-    <script src="js/sketch.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script type="text/javascript" src="lib/socketio.js"></script>
     <script src="lib/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -22,5 +21,8 @@
   </head>
   <body>
       <div id="sketch-holder"></div>
+      <script src="js/sketch.js"></script>
+
   </body>
+  
 </html>
