@@ -7,7 +7,8 @@ new p5(( /** @type {p5} */ p) => {
         'ROTATE_CW': 88, // X
         'ROTATE_CCW': 90, // Z
         'MOVE_RIGHT': 39, // RIGHT_ARROW
-        'SOFT_DROP':  40  // SOFT_DROP
+        'SOFT_DROP':  40, // DOWN_ARROW
+        'HARD_DROP': 32, // SPACE
     }
 
     class Mino {
@@ -18,6 +19,7 @@ new p5(( /** @type {p5} */ p) => {
             this.y = y
             this.tile_size = tile_size
             this.current_rotation = 0
+            this.last_drop_tick = performance.now()
         }
 
         render() {
@@ -54,6 +56,12 @@ new p5(( /** @type {p5} */ p) => {
                 .filter(t => t[0] != tile[0] || t[1] != tile[1])
                 .map(t => t[1] < tile[1] && t[0] == tile[0] ? [t[0], t[1] + 1] : t)
         }
+
+        clone() {
+            const m = new Mino(this.rotations.slice(0), this.textures, this.x, this.y, this.tile_size);
+            m.current_rotation = this.current_rotation;
+            return m;
+        }
     }
 
     class Tetris {
@@ -63,10 +71,11 @@ new p5(( /** @type {p5} */ p) => {
             this.tile_size = 20
             this.active_mino = null
             this.fallen_minos = []
-            this.last_drop_tick = performance.now()
+            this.dead = false
         }
 
         render() {
+            p.background(0)
             for (const mino of this.fallen_minos) {
                 mino.render()
             }
@@ -76,14 +85,23 @@ new p5(( /** @type {p5} */ p) => {
                 p.rect(ts * (tile[0]), ts * (tile[1]), ts, ts)
             }
             this.active_mino.render()
+            this.render_ghost()
+        }
+
+        render_ghost() {
+            let ghost = this.active_mino.clone()
+            while(this.tick_down(false, ghost))
+                ;
+            
+            ghost.render()
         }
 
         spawn_mino() {
             const srs_mino = SRS_tiles[p.random([...'LJSZTOI'])].slice(0)
             this.active_mino = new Mino(srs_mino, null, Math.floor((this.width - srs_mino.length) / 2), 0, this.tile_size)
             
-            if(this.active_mino_collides())
-                alert('You die')
+            if(this.mino_collides())
+                this.dead = true
         }
 
         lock_mino() {
@@ -93,21 +111,34 @@ new p5(( /** @type {p5} */ p) => {
         update() {
             this.time = performance.now()
             if(this.active_mino instanceof Mino) {
-                if(this.time - this.last_drop_tick > (this.soft_dropping ? 50 : 400))
+                if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 50 : 400))
                 {
-                    this.active_mino.y++
-                    this.last_drop_tick = performance.now()
-                }
-                if(this.active_mino_collides()) {
-                    this.active_mino.y--
-                    this.lock_mino()
-                    this.spawn_mino()
+                    this.tick_down()
                 }
             }
             else {
                 this.spawn_mino()
             }
             this.check_clear()
+        }
+
+        tick_down(spawn = true, mino = this.active_mino) {
+            if(mino == this.active_mino)
+            {
+                console.log("asd")
+            }
+            mino.y++
+            if(this.mino_collides(mino)) {
+                mino.y--
+                if(spawn)
+                {
+                    this.lock_mino()
+                    this.spawn_mino()
+                }
+                return false
+            }
+            mino.last_drop_tick = performance.now()
+            return true
         }
 
         check_clear() {
@@ -131,9 +162,9 @@ new p5(( /** @type {p5} */ p) => {
             }
         }
 
-        active_mino_collides() {
+        mino_collides(mino = this.active_mino) {
             return this.get_solid_tiles()
-                    .some(t => this.active_mino.get_tiles_on_board()
+                    .some(t => mino.get_tiles_on_board()
                         .some(t1 => t[0] == t1[0] && 
                                     t[1] == t1[1]))
         }
@@ -157,19 +188,19 @@ new p5(( /** @type {p5} */ p) => {
 
         rotate_cw() {
             this.active_mino.rotate_cw()
-            if(this.active_mino_collides())
+            if(this.mino_collides())
                 this.active_mino.rotate_ccw()
         }
 
         rotate_ccw() {
             this.active_mino.rotate_ccw()
-            if(this.active_mino_collides())
+            if(this.mino_collides())
                 this.active_mino.rotate_cw()
         }
 
         leftPressed() {
             this.active_mino.x--;
-            if(this.active_mino_collides())
+            if(this.mino_collides())
                 this.active_mino.x++;
         }
 
@@ -179,7 +210,7 @@ new p5(( /** @type {p5} */ p) => {
 
         rightPressed() {
             this.active_mino.x++;
-            if(this.active_mino_collides())
+            if(this.mino_collides())
                 this.active_mino.x--;
         }
 
@@ -193,6 +224,11 @@ new p5(( /** @type {p5} */ p) => {
 
         softDropReleased() {
             this.soft_dropping = false;
+        }
+
+        hard_drop() {
+            while(this.tick_down())
+                ;
         }
     }
 
@@ -219,13 +255,20 @@ new p5(( /** @type {p5} */ p) => {
                 })
         }
         const canvas = p.createCanvas(tetris.width * tetris.tile_size, tetris.height * tetris.tile_size)
-        canvas.parent('sketch-holder')
+        // canvas.parent('sketch-holder')
     }
     
     p.draw = () => {
-        p.background(0)
-        tetris.update()
-        tetris.render()
+        if(!tetris.dead)
+        {
+            tetris.update()
+            tetris.render()
+        }
+        else
+        {
+            alert('you die')
+            tetris = new Tetris()
+        }
     }
 
     p.keyPressed = () => {
@@ -244,6 +287,9 @@ new p5(( /** @type {p5} */ p) => {
                 break;
             case keybinds['SOFT_DROP']:
                 tetris.softDropPressed()
+                break;
+            case keybinds['HARD_DROP']:
+                tetris.hard_drop()
                 break;
         }
     }
