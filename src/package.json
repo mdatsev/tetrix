@@ -1,0 +1,22 @@
+{
+  "name": "tetrix",
+  "version": "0.0.0",
+  "description": "Тетрикс игра",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdatsev/tetrix.git"
+  },
+  "keywords": [
+    "tetris"
+  ],
+  "author": "mdatsev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mdatsev/tetrix/issues"
+  },
+  "homepage": "https://github.com/mdatsev/tetrix#readme"
+}

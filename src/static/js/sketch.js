@@ -6,11 +6,11 @@ new p5(( /** @type {p5} */ p) => {
 
     let keybinds = {
         'MOVE_LEFT':  37, // LEFT_ARROW
-        'ROTATE_CW': 88, // X
+        'ROTATE_CW':  88, // X
         'ROTATE_CCW': 90, // Z
         'MOVE_RIGHT': 39, // RIGHT_ARROW
         'SOFT_DROP':  40, // DOWN_ARROW
-        'HARD_DROP': 32, // SPACE
+        'HARD_DROP':  32, // SPACE
     }
 
     class Mino {
@@ -85,8 +85,8 @@ new p5(( /** @type {p5} */ p) => {
             }
             p.fill([255, 0, 0])
             
-            this.active_mino.render()
             this.render_ghost()
+            this.active_mino.render()
         }
 
         render_ghost() {
