@@ -1,0 +1,7 @@
+nav {
+    display: block;
+}
+nav ul li{
+    margin-left: 10px;
+    display: inline-block;
+}

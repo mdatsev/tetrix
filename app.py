@@ -75,4 +75,4 @@ def login():
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     return render_template('game.html')
-app.run(port=3000)
+app.run(port=3100)
