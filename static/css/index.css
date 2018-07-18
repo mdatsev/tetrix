@@ -1,0 +1,38 @@
+
+@font-face {
+    font-family: JosefinSans-Bold;
+    src: url('../fonts/JosefinSans/JosefinSans-Bold.ttf'); 
+  }
+  
+  @font-face {
+    font-family: Oswald-Medium;
+    src: url('../fonts/oswald/Oswald-Medium.ttf'); 
+  }
+  
+  /*//////////////////////////////////////////////////////////////////
+  [ RESTYLE TAG ]*/
+  
+  * {
+      margin: 0px; 
+      padding: 0px; 
+      box-sizing: border-box;
+  }
+  
+  body, html {
+    height: 100%;
+    font-family: JosefinSans-Bold, sans-serif;
+    background-image:url('tetrix.png');
+  }
+  div {
+    height: 10em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+  }
+  a {
+    margin-right: 10%;
+  }
+  div {
+    margin: 0 
+  }
