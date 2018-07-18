@@ -2,6 +2,8 @@
 /// <reference path="../vendor/p5.d.ts" />
 new p5(( /** @type {p5} */ p) => {
 
+    let default_skin, ghost_skin
+
     let keybinds = {
         'MOVE_LEFT':  37, // LEFT_ARROW
         'ROTATE_CW': 88, // X
@@ -90,14 +92,15 @@ new p5(( /** @type {p5} */ p) => {
         render_ghost() {
             let ghost = this.active_mino.clone()
             while(this.tick_down(false, ghost))
-                ;
+            ;
             
+            ghost.skin = ghost_skin
             ghost.render()
         }
 
         spawn_mino() {
             const srs_mino = SRS_tiles[p.random([...'LJSZTOI'])].slice(0)
-            let skin = p.loadImage("textures/skin"+(Math.floor(Math.random() * 4)+1).toString()+".png");
+            let skin = default_skin;
             this.active_mino = new Mino(srs_mino, null, Math.floor((this.width - srs_mino.length) / 2), 0, this.tile_size, skin)
             
             if(this.mino_collides())
@@ -256,6 +259,8 @@ new p5(( /** @type {p5} */ p) => {
 
     p.preload = () => {
         SRS = p.loadJSON('/data/SRS.json')
+        default_skin = p.loadImage("textures/skin.png")
+        ghost_skin = p.loadImage("textures/ghost.png")
     }
 
     p.setup = () => {
@@ -273,7 +278,7 @@ new p5(( /** @type {p5} */ p) => {
                 })
         }
         const canvas = p.createCanvas(tetris.width * tetris.tile_size, tetris.height * tetris.tile_size)
-         canvas.parent('sketch-holder')
+        canvas.parent('sketch-holder')
     }
     
     p.draw = () => {
