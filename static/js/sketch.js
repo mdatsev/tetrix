@@ -218,7 +218,8 @@ new p5(( /** @type {p5} */ p) => {
                     return tiles
                 })
         }
-        p.createCanvas(tetris.width * tetris.tile_size, tetris.height * tetris.tile_size)
+        const canvas = p.createCanvas(tetris.width * tetris.tile_size, tetris.height * tetris.tile_size)
+        canvas.parent('sketch-holder')
     }
     
     p.draw = () => {
