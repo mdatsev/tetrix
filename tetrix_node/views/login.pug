@@ -1,0 +1,22 @@
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    link(rel='stylesheet', href='css/main.css')
+    title Tetrix
+  body
+    .container-contact100
+      .wrap-contact100
+        form.contact100-form.validate-form(method="post" action="/login")
+          span.contact100-form-title
+            | Log in
+          .wrap-input100.validate-input
+            input.input100(type="text" name="email" placeholder="Email")
+            span.focus-input100-1
+            span.focus-input100-2
+          .wrap-input100.validate-input
+            input.input100(type="password" name="password" placeholder="Password")
+            span.focus-input100-1
+            span.focus-input100-2
+          .container-contact100-form-btn
+            input.contact100-form-btn(type="submit" value="Log in")
+            a.contact100-form-btn(href="/register" style="margin-left: 4em") Register
