@@ -7,23 +7,24 @@ from firebase_admin import credentials
 from firebase_admin import db
 import json
 
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__, static_url_path='', template_folder="templates")
 
 app.secret_key = "super secret"
 
-socketio = SocketIO(app)
 
-if __name__ == '__main__':
-    socketio.run(app)
+# socketio = SocketIO(app)
 
-cred = credentials.Certificate("./config/secrets/serviceAccountKey.json")
-firebase_admin.initialize_app(cred, options={"databaseURL":"https://tetrix-1d1fc.firebaseio.com/"})
+# if __name__ == '__main__':
+#     socketio.run(app)
 
-users = db.reference('users')
+# cred = credentials.Certificate("./config/secrets/serviceAccountKey.json")
+# firebase_admin.initialize_app(cred, options={"databaseURL":"https://tetrix-1d1fc.firebaseio.com/"})
 
-@socketio.on('keypress')
-def handle_my_custom_event(json):
-    print('received json: ' + str(json))
+# users = db.reference('users')
+
+# @socketio.on('keypress')
+# def handle_my_custom_event(json):
+#     print('received json: ' + str(json))
 
 @app.route('/lib/<path:path>')
 def send_js(path):
@@ -74,4 +75,4 @@ def login():
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     return render_template('game.html')
-app.run()
+app.run(port=3000)
