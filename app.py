@@ -12,7 +12,7 @@ app = Flask(__name__, static_url_path='', template_folder="templates")
 
 app.secret_key = "super secret"
 
-#socketio = SocketIO(app)
+socketio = SocketIO(app)
 
 
 if __name__ == '__main__':
