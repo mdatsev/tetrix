@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  p Welcome, #{user.username}
+  P Your friends:
+  each fr in user.friends
+    p #{fr.username}

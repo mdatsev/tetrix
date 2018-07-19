@@ -20,6 +20,6 @@ router.post('/login', async(req, res, next)=> {
 router.post('/register',async(req, res, next)=> {
    let hash = await bcrypt.hash(req.body.password,saltRounds)  
    await User.create({username:req.body.username, password:hash})
-   res.redirect('/game')
+   res.redirect('/login')
 });
 module.exports = router;
