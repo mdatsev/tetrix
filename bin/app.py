@@ -22,6 +22,7 @@ cred = credentials.Certificate("./config/secrets/serviceAccountKey.json")
 firebase_admin.initialize_app(cred, options={"databaseURL":"https://tetrix-1d1fc.firebaseio.com/"})
 
 users = db.reference('users')
+gosh = db.reference('use')
 
 @socketio.on('keypress')
 def handle_my_custom_event(json):
