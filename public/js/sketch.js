@@ -1,11 +1,11 @@
-import Mino from "/common/mino.js"
-import Tetris from "/common/tetris.js"
 // @ts-check
 /// <reference path="../vendor/p5.d.ts" />
+import Mino from "/common/mino.js"
+import Tetris from "/common/tetris.js"
+
 new p5(( /** @type {p5} */ p) => {
-
+    Mino
     let default_skin, ghost_skin
-
     let keybinds = {
         'MOVE_LEFT':  37, // LEFT_ARROW
         'ROTATE_CW':  88, // X
@@ -53,7 +53,7 @@ new p5(( /** @type {p5} */ p) => {
             this.mino_renderer.render(ghost)
         }
     }
-
+    
     
     let SRS
     let SRS_tiles = {}

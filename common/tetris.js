@@ -2,6 +2,8 @@
 import Mino from "./mino.js"
 export default class Tetris {
     constructor(pieces, wallkick_data) {
+        this.lock_delay = 400
+        this.last_try_lock = Infinity
         this.pieces = pieces
         this.wallkick_data = wallkick_data || {'default': [[0, 0]]}
         this.width = 10
@@ -45,11 +47,11 @@ export default class Tetris {
 
     update() {
         this.time = performance.now()
-        if(this.time - this.right_pressed_time > 400) {
+        if(this.time - this.right_pressed_time > 119) {
             if(!this.input_priorities.includes('right_das'))
                 this.input_priorities.push('right_das')
         }
-        if(this.time - this.left_pressed_time > 400) {
+        if(this.time - this.left_pressed_time > 119) {
             if(!this.input_priorities.includes('left_das'))
                 this.input_priorities.push('left_das')
         }
@@ -79,7 +81,7 @@ export default class Tetris {
         }
         
         if(this.active_mino instanceof Mino) {
-            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 50 : 1500)) {
+            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 10 : 1500)) {
                 this.tick_down()
             }
         }
