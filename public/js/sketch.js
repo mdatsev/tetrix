@@ -4,7 +4,6 @@ import Mino from "/common/mino.js"
 import Tetris from "/common/tetris.js"
 
 new p5(( /** @type {p5} */ p) => {
-    Mino
     let default_skin, ghost_skin
     let keybinds = {
         'MOVE_LEFT':  37, // LEFT_ARROW

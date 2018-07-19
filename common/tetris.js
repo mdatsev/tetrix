@@ -99,12 +99,15 @@ export default class Tetris {
         return true
     }
 
-    tick_down(spawn = true, mino = this.active_mino) {
+    tick_down(spawn = true, mino = this.active_mino, ignore_lock_delay = false) {
+        this.time = performance.now()
         if(!this.move_mino(mino, 0, 1)) {
-            if(spawn)
-            {
-                this.lock_mino()
-                this.spawn_mino()
+            if(spawn) {
+                if(this.time - this.last_try_lock > 500 || ignore_lock_delay) {
+                    this.lock_mino()
+                    this.spawn_mino()
+                    this.last_try_lock = Infinity
+                }
             }
             return false
         }
@@ -179,18 +182,22 @@ export default class Tetris {
         this.active_mino.rotate(old_state)
     }
     rotate_cw() {
+        this.last_try_lock = performance.now()
         this.rotate(this.active_mino.current_rotation + 1)
     }
 
     rotate_ccw() {
+        this.last_try_lock = performance.now()
         this.rotate(this.active_mino.current_rotation - 1)
     }
 
     move_left() {
+        this.last_try_lock = performance.now()
         return this.move_mino(this.active_mino, -1, 0)
     }
 
     move_right() {
+        this.last_try_lock = performance.now()
         return this.move_mino(this.active_mino, 1, 0)
     }
 
@@ -229,7 +236,7 @@ export default class Tetris {
     }
 
     hard_drop() {
-        while(this.tick_down())
+        while(this.tick_down(true, this.active_mino, true))
             ;
     }
 }
