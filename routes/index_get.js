@@ -20,12 +20,25 @@ router.get('/', function(req, res) {
 
 
 router.get('/login', function(req, res) {
-  res.render('login');
+  res.clearCookie('error')
+  res.render('login', {error: req.cookies.error});
 });
 
 
 
 router.get('/register', function(req, res) {
-  res.render('register');
+  res.clearCookie('error')
+  res.render('register', {error: req.cookies.error});
 });
+
+
+router.get('/logout',async(req, res)=> {
+  Session.deleteOne({token: req.cookies.sessionToken}, function (err) {
+    if (err) console.log(err) //return handleError(err);
+  });
+  res.clearCookie("sessionToken");
+  res.locals.loged = false
+  return res.redirect('/')
+});
+
 module.exports = router;

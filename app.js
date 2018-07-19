@@ -2,14 +2,13 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 
-var flash = require('connect-flash');
-var session = require('express-session')
-
 var logger = require('morgan');
 var indexGetRouter = require('./routes/index_get');
 var indexPostRouter = require('./routes/index_post');
 var gameGetRouter = require('./routes/game_get');
-var accountGetRouter =require('./routes/account_get')
+var accountGetRouter =require('./routes/account_get');
+
+const Session = require('./schemas/Session');
 const mongoose = require('mongoose');
 var app = express();
 
@@ -34,15 +33,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/common', express.static(path.join(__dirname, 'common')));
 
 app.use(function(req,res,next){
-  if (req.user) {
-      res.locals.user = req.user;
-  }
-  next();
+  res.locals.loged = false
+  Session.findOne({token: req.cookies.sessionToken}).then(sess => {
+    if(sess) {
+      res.locals.loged = true
+    }
+    next();
+  })
 });
 app.use('/', indexGetRouter);
 app.use('/', indexPostRouter);
 app.use('/game', gameGetRouter);
-app.use('/account', accountGetRouter);
+app.use('/account', accountGetRouter); 
 
 
 

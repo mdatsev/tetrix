@@ -17,7 +17,8 @@ router.post('/login', async(req, res, next)=> {
             return res.redirect('/game')
         }
     }
-    return res.render('login', {error: 'Incorrect username or password!'})
+    res.cookie('error', 'Incorrect username or password!')
+    return res.redirect('/login')
 });
 router.post('/register',async(req, res, next)=> {
     let user = await User.findOne({username:req.body.username}).exec()
@@ -26,6 +27,7 @@ router.post('/register',async(req, res, next)=> {
         await User.create({username:req.body.username, password:hash})
         return res.redirect('/game')
     }
-   return res.render('register', {error: 'This user already exists!'})
+    res.cookie('error', 'This user already exists!')
+    return res.redirect('/register')
 });
 module.exports = router;
