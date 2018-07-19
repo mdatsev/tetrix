@@ -8,14 +8,9 @@ export default class Mino {
         this.meta = meta || {}
         this.last_drop_tick = performance.now()
     }
-    rotate_cw() {
-        if(++this.current_rotation > this.rotations.length - 1)
-            this.current_rotation = 0
-    }
 
-    rotate_ccw() {
-        if(--this.current_rotation < 0)
-            this.current_rotation = this.rotations.length - 1
+    rotate(state) {
+        this.current_rotation = state
     }
 
     get_tiles() {
@@ -38,5 +33,16 @@ export default class Mino {
         const m = new Mino([...this.rotations], this.x, this.y, {...this.meta});
         m.current_rotation = this.current_rotation;
         return m;
+    }
+
+    move(x_or_xy, y) {
+        if(y !== undefined) {
+            this.x += x_or_xy
+            this.y += y
+        }
+        else {
+            this.x += x_or_xy[0]
+            this.y += x_or_xy[1]
+        }
     }
 }

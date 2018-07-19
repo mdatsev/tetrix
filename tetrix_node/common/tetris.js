@@ -1,11 +1,11 @@
 // @ts-check
 import Mino from "./mino.js"
 export default class Tetris {
-    constructor(pieces) {
+    constructor(pieces, wallkick_data) {
         this.pieces = pieces
+        this.wallkick_data = wallkick_data || {'default': [[0, 0]]}
         this.width = 10
         this.height = 22
-        this.tile_size = 25
         this.active_mino = null
         this.fallen_minos = []
         this.dead = false
@@ -42,7 +42,7 @@ export default class Tetris {
             this.left_pressed_time = Infinity
         }
         if(this.active_mino instanceof Mino) {
-            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 50 : 400))
+            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 50 : 1500))
             {
                 this.tick_down()
             }
@@ -53,10 +53,18 @@ export default class Tetris {
         this.check_clear()
     }
 
-    tick_down(spawn = true, mino = this.active_mino) {
-        mino.y++
+    move_mino(mino, x, y) {
+        mino.x += x
+        mino.y += y
         if(this.mino_collides(mino)) {
-            mino.y--
+            this.move_mino(mino, -x, -y)
+            return false
+        }
+        return true
+    }
+
+    tick_down(spawn = true, mino = this.active_mino) {
+        if(!this.move_mino(mino, 0, 1)) {
             if(spawn)
             {
                 this.lock_mino()
@@ -113,23 +121,39 @@ export default class Tetris {
             .filter(e => e[1] < this.height)
     }
 
+    rotate(state) {
+        let old_state = this.active_mino.current_rotation
+        if(state > this.active_mino.rotations.length - 1)
+            state = 0
+        if(state < 0)
+            state = this.active_mino.rotations.length - 1
+        this.active_mino.rotate(state)
+        const transition = `${old_state}${state}`
+        const piece_offsets = this.wallkick_data[this.active_mino.meta.letter] || this.wallkick_data['default']
+        const transition_offsets = piece_offsets[transition]
+        console.log(transition)
+        for(const offset of transition_offsets)
+        {
+            this.active_mino.move(offset[0], -offset[1])
+            if(!this.mino_collides()) {
+                return
+            }
+            this.active_mino.move(-offset[0], offset[1])
+        }
+        this.active_mino.rotate(old_state)
+    }
+
     rotate_cw() {
-        this.active_mino.rotate_cw()
-        if(this.mino_collides())
-            this.active_mino.rotate_ccw()
+        this.rotate(this.active_mino.current_rotation + 1)
     }
 
     rotate_ccw() {
-        this.active_mino.rotate_ccw()
-        if(this.mino_collides())
-            this.active_mino.rotate_cw()
+        this.rotate(this.active_mino.current_rotation - 1)
     }
 
     leftPressed() {
-        this.active_mino.x--;
-        if(this.mino_collides())
+        if(!this.move_mino(this.active_mino, -1, 0))
         {
-            this.active_mino.x++;
             return false
         }
         this.left_pressed_time = performance.now()
@@ -141,10 +165,8 @@ export default class Tetris {
     }
 
     rightPressed() {
-        this.active_mino.x++;
-        if(this.mino_collides())
+        if(!this.move_mino(this.active_mino, 1, 0))
         {
-            this.active_mino.x--;
             return false
         }
         this.right_pressed_time = performance.now()

@@ -57,16 +57,19 @@ new p5(( /** @type {p5} */ p) => {
     
     let SRS
     let SRS_tiles = {}
-    let tetris = new Tetris(SRS_tiles)
+    let SRS_wallkick
+    let tetris
     let renderer = new TetrisRenderer()
 
     p.preload = () => {
-        SRS = p.loadJSON('/data/SRS.json')
+        SRS = p.loadJSON('/data/SRS_rotations.json')
+        SRS_wallkick = p.loadJSON('/data/SRS_wallkicks.json')
         default_skin = p.loadImage("textures/skin.png")
         ghost_skin = p.loadImage("textures/ghost.png")
     }
 
     p.setup = () => {
+        tetris = new Tetris(SRS_tiles, SRS_wallkick)
         for (const mino in SRS) {
             SRS_tiles[mino] = SRS[mino]
                 .map(rotation => {
