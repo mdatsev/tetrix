@@ -8,19 +8,30 @@ export default class Tetris {
         this.height = 22
         this.active_mino = null
         this.fallen_minos = []
+        this.minos_bag = []
         this.dead = false
         this.right_pressed_time = Infinity
         this.left_pressed_time = Infinity
     }
 
     spawn_mino() {
-        const letters = [...'LJSZTOI']
-        const letter = letters[Math.floor(Math.random()*letters.length)];
+        if(this.minos_bag.length == 0) {
+            this.generate_bag();
+        }
+        console.log(this.minos_bag);
+        const letter = this.minos_bag.pop();
+        console.log(letter);
         const srs_mino = [...this.pieces[letter]]
         this.active_mino = new Mino(srs_mino, Math.floor((this.width - srs_mino.length) / 2), 0, {letter})
         
         if(this.mino_collides())
             this.dead = true
+    }
+
+    generate_bag() {
+        const letters = [...'LJSZTOI']
+        this.minos_bag = shuffle(letters);
+        console.log("Mino" + this.minos_bag);
     }
 
     lock_mino() {
@@ -142,7 +153,6 @@ export default class Tetris {
         }
         this.active_mino.rotate(old_state)
     }
-
     rotate_cw() {
         this.rotate(this.active_mino.current_rotation + 1)
     }
@@ -189,4 +199,19 @@ export default class Tetris {
         while(this.tick_down())
             ;
     }
+}
+
+function shuffle(array) {
+    var current_index = array.length, temporary_value, random_index;
+
+    while (0 !== current_index) {
+      random_index = Math.floor(Math.random() * current_index);
+      current_index -= 1;
+
+      temporary_value = array[current_index];
+      array[current_index] = array[random_index];
+      array[random_index] = temporary_value;
+    }
+  
+    return array;
 }
