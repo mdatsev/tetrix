@@ -9,6 +9,7 @@ export default class Tetris {
         this.width = 10
         this.height = 22
         this.active_mino = null
+        this.holded_mino = null
         this.fallen_minos = []
         this.minos_bag = []
         this.dead = false
