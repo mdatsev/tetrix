@@ -8,19 +8,35 @@ export default class Tetris {
         this.height = 22
         this.active_mino = null
         this.fallen_minos = []
+        this.minos_bag = []
         this.dead = false
         this.right_pressed_time = Infinity
         this.left_pressed_time = Infinity
+        this.dasing_left = false
+        this.dasing_right = false
+        this.input_priorities = []
+        this.moved_left = true
+        this.moved_right = true
     }
 
     spawn_mino() {
-        const letters = [...'LJSZTOI']
-        const letter = letters[Math.floor(Math.random()*letters.length)];
+        if(this.minos_bag.length == 0) {
+            this.generate_bag();
+        }
+        console.log(this.minos_bag);
+        const letter = this.minos_bag.pop();
+        console.log(letter);
         const srs_mino = [...this.pieces[letter]]
         this.active_mino = new Mino(srs_mino, Math.floor((this.width - srs_mino.length) / 2), 0, {letter})
         
         if(this.mino_collides())
             this.dead = true
+    }
+
+    generate_bag() {
+        const letters = [...'LJSZTOI']
+        this.minos_bag = shuffle(letters);
+        console.log("Mino" + this.minos_bag);
     }
 
     lock_mino() {
@@ -29,21 +45,41 @@ export default class Tetris {
 
     update() {
         this.time = performance.now()
-        if(this.time - this.right_pressed_time > 119)
-        {
-            while(this.rightPressed())
-                ;
-            this.right_pressed_time = Infinity
+        if(this.time - this.right_pressed_time > 400) {
+            if(!this.input_priorities.includes('right_das'))
+                this.input_priorities.push('right_das')
         }
-        if(this.time - this.left_pressed_time > 119)
-        {
-            while(this.leftPressed())
-                ;
-            this.left_pressed_time = Infinity
+        if(this.time - this.left_pressed_time > 400) {
+            if(!this.input_priorities.includes('left_das'))
+                this.input_priorities.push('left_das')
         }
+        for(const input of this.input_priorities) {
+            switch(input) {
+                case 'left':
+                    if(this.moved_left) break;
+                    this.move_left()
+                    this.moved_left = true
+                    break;
+                case 'right':
+                    if(this.moved_right) break;
+                    this.move_right()
+                    this.moved_right = true
+                    break;
+                case 'left_das':
+                    while(this.move_left())
+                        ;
+                    this.moved_right = false
+                    break;
+                case 'right_das':
+                    while(this.move_right())
+                        ;
+                    this.moved_left = false
+                    break;
+            }
+        }
+        
         if(this.active_mino instanceof Mino) {
-            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 50 : 1500))
-            {
+            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 50 : 1500)) {
                 this.tick_down()
             }
         }
@@ -142,7 +178,6 @@ export default class Tetris {
         }
         this.active_mino.rotate(old_state)
     }
-
     rotate_cw() {
         this.rotate(this.active_mino.current_rotation + 1)
     }
@@ -151,29 +186,37 @@ export default class Tetris {
         this.rotate(this.active_mino.current_rotation - 1)
     }
 
+    move_left() {
+        return this.move_mino(this.active_mino, -1, 0)
+    }
+
+    move_right() {
+        return this.move_mino(this.active_mino, 1, 0)
+    }
+
     leftPressed() {
-        if(!this.move_mino(this.active_mino, -1, 0))
-        {
-            return false
-        }
+        this.moved_left = false
+        this.input_priorities.push('left')
         this.left_pressed_time = performance.now()
-        return true
     }
 
     leftReleased() {
+        this.input_priorities = this.input_priorities.filter(e => e != 'left_das')
+        this.input_priorities = this.input_priorities.filter(e => e != 'left')
+        this.dasing_left = false
         this.left_pressed_time = Infinity
     }
 
     rightPressed() {
-        if(!this.move_mino(this.active_mino, 1, 0))
-        {
-            return false
-        }
+        this.moved_right = false
+        this.input_priorities.push('right')
         this.right_pressed_time = performance.now()
-        return true
     }
-
+    
     rightReleased() {
+        this.input_priorities = this.input_priorities.filter(e => e != 'right_das')
+        this.input_priorities = this.input_priorities.filter(e => e != 'right')
+        this.dasing_right = false
         this.right_pressed_time = Infinity
     }
 
@@ -189,4 +232,19 @@ export default class Tetris {
         while(this.tick_down())
             ;
     }
+}
+
+function shuffle(array) {
+    var current_index = array.length, temporary_value, random_index;
+
+    while (0 !== current_index) {
+      random_index = Math.floor(Math.random() * current_index);
+      current_index -= 1;
+
+      temporary_value = array[current_index];
+      array[current_index] = array[random_index];
+      array[random_index] = temporary_value;
+    }
+  
+    return array;
 }

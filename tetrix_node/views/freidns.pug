@@ -1,0 +1,8 @@
+each user in users
+    form(action="/account/friends/add/"+user.id, method="POST")
+        p=user.username
+        input(type='submit' value='Send request')
+each request in cur_user.requests
+    form(action="/account/friends/accept/"+request.id, method="POST")
+        p=request.username
+        input(type='submit' value='Accept request')

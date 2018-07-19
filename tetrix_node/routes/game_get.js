@@ -11,7 +11,7 @@ router.use((req, res, next)=> {
 });
 
 
-router.get('/', function(req, res, next) {
+router.get('/', function(req, res) {
     if(!req.username) res.redirect('/login')
     res.render('game')
 });

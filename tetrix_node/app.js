@@ -9,6 +9,7 @@ var logger = require('morgan');
 var indexGetRouter = require('./routes/index_get');
 var indexPostRouter = require('./routes/index_post');
 var gameGetRouter = require('./routes/game_get');
+var accountGetRouter =require('./routes/account_get')
 const mongoose = require('mongoose');
 var app = express();
 
@@ -40,7 +41,8 @@ app.use(function(req,res,next){
 });
 app.use('/', indexGetRouter);
 app.use('/', indexPostRouter);
-app.use('/game', gameGetRouter)
+app.use('/game', gameGetRouter);
+app.use('/account', accountGetRouter);
 
 
 
