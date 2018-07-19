@@ -1,7 +1,6 @@
-#sketch-holder {
-    margin: 0;
-    width: 60%;
-    padding-left: 40%;
-    padding-top: 3%;
-
+#sketch-holder canvas {
+    position: absolute;
+    left:0; right:0;
+    top:0; bottom:0;
+	margin:auto;
 }

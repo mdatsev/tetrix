@@ -1,6 +1,10 @@
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+
+var flash = require('connect-flash');
+var session = require('express-session')
+
 var logger = require('morgan');
 var indexGetRouter = require('./routes/index_get');
 var indexPostRouter = require('./routes/index_post');
@@ -24,9 +28,16 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/common', express.static(path.join(__dirname, 'common')));
 
+app.use(function(req,res,next){
+  if (req.user) {
+      res.locals.user = req.user;
+  }
+  next();
+});
 app.use('/', indexGetRouter);
 app.use('/', indexPostRouter);
 app.use('/game', gameGetRouter)

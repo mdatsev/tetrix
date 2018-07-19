@@ -1,8 +1,6 @@
-doctype html
-html
-  head
-    meta(charset="utf-8")
-    meta(name="viewport" width="device-width," initial-scale="1.0," maximum-scale="1.0," user-scalable="0")
+extends layout.pug
+
+block append head
     style.
       body {padding: 0; margin: 0;}
     script(src="vendor/p5.min.js")
@@ -15,10 +13,11 @@ html
     script(type="text/javascript" charset="utf-8").
       var socket = io.connect('http://' + document.domain + ':' + location.port);
       $('document').ready(()=>{
-      $(document).on('keypress', function(e) {
-      socket.emit('keypress', {keyCode: e.keyCode});
+        $(document).on('keypress', function(e) {
+        socket.emit('keypress', {keyCode: e.keyCode});
+        })
       })
-      })
-  body
+
+block append content
     #sketch-holder
     script(src="js/sketch.js" type="module")
