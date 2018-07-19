@@ -22,12 +22,10 @@ export default class Tetris {
     }
 
     spawn_mino() {
-        if(this.minos_bag.length == 0) {
+        if(this.minos_bag.length <= 5) {
             this.generate_bag();
         }
-        console.log(this.minos_bag);
-        const letter = this.minos_bag.pop();
-        console.log(letter);
+        const letter = this.minos_bag.shift();
         const srs_mino = [...this.pieces[letter]]
         this.active_mino = new Mino(srs_mino, Math.floor((this.width - srs_mino.length) / 2), 0, {letter})
         
@@ -37,8 +35,8 @@ export default class Tetris {
 
     generate_bag() {
         const letters = [...'LJSZTOI']
-        this.minos_bag = shuffle(letters);
-        console.log("Mino" + this.minos_bag);
+        this.minos_bag.push(...shuffle(letters));
+        console.log("Added to bag");
     }
 
     lock_mino() {

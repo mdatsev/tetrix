@@ -31,6 +31,7 @@ new p5(( /** @type {p5} */ p) => {
     class TetrisRenderer {
         constructor() {
             this.tile_size = 25
+            this.queue_size = 5;
             this.mino_renderer = new MinoRenderer({tile_size: this.tile_size})
         }
         render(tetris) {
@@ -51,6 +52,24 @@ new p5(( /** @type {p5} */ p) => {
             
             ghost.meta.ghost = true
             this.mino_renderer.render(ghost)
+        }
+
+        render_queue() {
+            let x = (tetris.width + 0.5) * this.tile_size, y = tetris.height * this.tile_size
+            p.stroke(153);
+            p.strokeWeight(this.tile_size)
+            p.line(x, 0, x, y)
+            if(tetris.minos_bag.length > 0) {
+                let minos_bag_clone = [...tetris.minos_bag.slice(0, this.queue_size)]
+                //console.log(minos_bag_clone )
+                let mino_pos_start = 1;
+                minos_bag_clone
+                    .forEach(m => {
+                        let mino = new Mino(SRS_tiles[m], tetris.width + 2, mino_pos_start, m)
+                        this.mino_renderer.render(mino)
+                        mino_pos_start += 4;
+                    })
+            }
         }
     }
     
@@ -83,7 +102,7 @@ new p5(( /** @type {p5} */ p) => {
                     return tiles
                 })
         }
-        const canvas = p.createCanvas(tetris.width * renderer.tile_size, tetris.height * renderer.tile_size)
+        const canvas = p.createCanvas((tetris.width + 6) * renderer.tile_size, tetris.height * renderer.tile_size)
         canvas.parent('sketch-holder')
     }
     
@@ -92,6 +111,7 @@ new p5(( /** @type {p5} */ p) => {
         {
             tetris.update()
             renderer.render(tetris)
+            renderer.render_queue()
         }
         else
         {
