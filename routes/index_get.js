@@ -17,7 +17,13 @@ router.get('/', function(req, res) {
     res.render('index', {title:"Express"})
 });
 
-
+const User = require('../schemas/User')
+const Skin = require('../schemas/Skin')
+router.get('/skin', async function(req, res) {
+  let user = await User.findOne({username: req.username})
+  let skin = await Skin.findOne({_id: user.equippedSkin})
+  res.send({skinPath: skin.imgPath})
+});
 
 router.get('/login', function(req, res) {
   res.clearCookie('error')

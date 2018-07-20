@@ -4,25 +4,31 @@ html(lang="en")
     block head
       meta(charset="UTF-8")
       link(rel='stylesheet', href='css/main.css')
+      link(rel="shortcut icon", href="style/logo2.png")
+      script(src="vendor/jquery-3.3.1.min.js")
       title Tetrix
   body
-    nav
+    .nav
       block nav
-        .nav-header
-          a(href= '/') Tetrix
+        ul
+          li.nav-header
+            a(href='/') Tetrix
 
-        .nav-body
-          ul
-            li
-              a(href='/game')
-            
-            if (loged) 
-              li
-                a(href="/logout") Logout
-            else 
-              li
-                a(href='/login') Login
-              li
-                a(href='/register') Register
+          li
+            a(href='/game') Game
+
+          li
+            a(href='/shop') Shop
+          
+          if (loged) 
+            li.float-right
+              a(href="/logout") Logout
+            li.float-right
+              a(href="/account") Account
+          else
+            li.float-right
+              a(href='/register') Register
+            li.float-right
+              a(href='/login') Login
 
     block content

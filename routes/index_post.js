@@ -20,11 +20,13 @@ router.post('/login', async(req, res, next)=> {
     res.cookie('error', 'Incorrect username or password!')
     return res.redirect('/login')
 });
+const Skin = require('../schemas/Skin')
 router.post('/register',async(req, res, next)=> {
     let user = await User.findOne({username:req.body.username}).exec()
     if(!user) {
-        let hash = await bcrypt.hash(req.body.password,saltRounds)  
-        await User.create({username:req.body.username, password:hash})
+        let hash = await bcrypt.hash(req.body.password,saltRounds)
+        let skin = await Skin.findOne({name: "skin"})
+        await User.create({username:req.body.username, password:hash, tBucks:10, tCoins: 1000, equippedSkin: skin._id})
         return res.redirect('/game')
     }
     res.cookie('error', 'This user already exists!')

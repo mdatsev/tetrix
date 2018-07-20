@@ -7,6 +7,7 @@ var indexGetRouter = require('./routes/index_get');
 var indexPostRouter = require('./routes/index_post');
 var gameGetRouter = require('./routes/game_get');
 var accountGetRouter =require('./routes/account_get');
+var shopGetRouter =require('./routes/shop_get');
 
 const Session = require('./schemas/Session');
 const mongoose = require('mongoose');
@@ -45,8 +46,7 @@ app.use('/', indexGetRouter);
 app.use('/', indexPostRouter);
 app.use('/game', gameGetRouter);
 app.use('/account', accountGetRouter); 
-
-
+app.use('/shop', shopGetRouter)
 
 // error handler
 app.use(function(err, req, res, next) {
@@ -59,4 +59,13 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+// const Item = require('./schemas/Item')
+// Item.create({name: "gosho", tCoins: 15.5})
+
+// const Skin = require('./schemas/Skin')
+// Skin.create({name: "skin", imgPath: "skin.png", tCoins: 0})
+// Skin.create({name: "skin1", imgPath: "skin1.png", tBucks: 10})
+// Skin.create({name: "skin2", imgPath: "skin2.png", tCoins: 100.68})
+// Skin.create({name: "skin3", imgPath: "skin3.png", tBucks: 30})
+// Skin.create({name: "skin4", imgPath: "skin4.png", tBucks: 100})
 module.exports = app;
