@@ -1,9 +1,9 @@
-var express = require('express');
-var router = express.Router();
-const Session = require('../schemas/Session')
+import { Router } from 'express';
+var router = Router();
+import { findOne, deleteOne } from '../schemas/Session';
 
 router.use((req, res, next)=> {
-  Session.findOne({token: req.cookies.sessionToken}).then((ses)=>{
+  findOne({token: req.cookies.sessionToken}).then((ses)=>{
       if(ses){
         req.username = ses.username
       }
@@ -33,7 +33,7 @@ router.get('/register', function(req, res) {
 
 
 router.get('/logout',async(req, res)=> {
-  Session.deleteOne({token: req.cookies.sessionToken}, function (err) {
+  deleteOne({token: req.cookies.sessionToken}, function (err) {
     if (err) console.log(err) //return handleError(err);
   });
   res.clearCookie("sessionToken");
@@ -41,4 +41,4 @@ router.get('/logout',async(req, res)=> {
   return res.redirect('/')
 });
 
-module.exports = router;
+export default router;
