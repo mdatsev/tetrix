@@ -15,12 +15,12 @@ router.use((req, res, next)=> {
 });
 
 router.get('/create', (req,res)=>{
-  if(!req.username) res.redirect('/login')
+  if(!req.username) return res.redirect('/login')
   res.render('lobby_create')
 })
 
 router.post('/create', async(req,res)=>{
-  if(!req.username) res.redirect('/login')
+  if(!req.username) return res.redirect('/login')
   let cur_user = await User.findOne({username:req.username}).exec()
   let link = Crypto.randomBytes(18).toString("hex")
 
@@ -28,7 +28,7 @@ router.post('/create', async(req,res)=>{
   res.redirect(`/game/room/${link}`)
 })
 router.get('/room/:id', (req,res)=>{
-  if(!req.username) res.redirect('/login')
+  if(!req.username) return res.redirect('/login')
   console.log(req.username)
   res.render('Room',{players:[], username:req.username})
 })

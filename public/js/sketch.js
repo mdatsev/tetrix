@@ -151,7 +151,7 @@ new p5(( /** @type {p5} */ p) => {
         SRS = p.loadJSON('/data/SRS_rotations.json')
         SRS_wallkick = p.loadJSON('/data/SRS_wallkicks.json')
         jQuery.ajaxSetup({async:false});
-        let skinPath = $.get('/skin').responseJSON.skinPath
+        let skinPath = $.get('/account/skin').responseJSON.skinPath
         jQuery.ajaxSetup({async:true});
         default_skin = p.loadImage("textures/" + skinPath)
         ghost_skin = p.loadImage("textures/ghost.png")

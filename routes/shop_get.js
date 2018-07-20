@@ -16,7 +16,7 @@ router.use((req, res, next) => {
 
 
 router.get('/', async (req, res) => {
-    if(!req.username) res.redirect('/login')
+    if(!req.username) return res.redirect('/login')
     let items = await Item.find({}).exec()
     let skins = await Skin.find({}).exec()
 
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/item', async (req, res) => {
-	if(!req.username) res.redirect('/login')
+	if(!req.username) return res.redirect('/login')
 	let user = await User.findOne({username: req.username}).exec()
 	let item = await Item.findOne({name: req.body.itemName}).exec()
 
