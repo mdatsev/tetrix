@@ -7,7 +7,9 @@ export default class Tetris {
         this.pieces = pieces
         this.wallkick_data = wallkick_data || {'default': [[0, 0]]}
         this.width = 10
-        this.height = 22
+        this.height = 40
+        this.visible_height = this.height / 2;
+        this.can_hold = false;
         this.active_mino = null
         this.holded_mino = null
         this.fallen_minos = []
@@ -23,6 +25,7 @@ export default class Tetris {
     }
 
     spawn_mino() {
+        this.can_hold = true;
         if(this.minos_bag.length <= 5) {
             this.generate_bag();
         }
@@ -117,7 +120,7 @@ export default class Tetris {
     }
 
     check_clear() {
-        let lines = new Array(this.height).fill(null).map(_=>[])
+        let lines = new Array(this.visible_height).fill(null).map(_=>[])
         for(const tile of this.get_real_solid_tiles())
         {
             lines[tile[1]].push(tile)
@@ -146,11 +149,11 @@ export default class Tetris {
 
     get_solid_tiles() {
         const widths = [...Array(this.width).keys()];
-        const heights = [...Array(this.height).keys()]
+        const heights = [...Array(this.visible_height).keys()]
         return this.get_real_solid_tiles()
             .concat(widths.map(e => [e, -1]))
             .concat(heights.map(e => [-1, e]))
-            .concat(widths.map(e => [e, this.height]))
+            .concat(widths.map(e => [e, this.visible_height]))
             .concat(heights.map(e => [this.width, e]))
     }
 
@@ -158,19 +161,19 @@ export default class Tetris {
         return this.fallen_minos
             .map(mino => mino.get_tiles_on_board())
             .reduce((a, e) => a.concat(e), [])
-            .filter(e => e[1] < this.height)
+            .filter(e => e[1] < this.visible_height)
     }
 
     rotate(state) {
         let old_state = this.active_mino.current_rotation
         if(state > this.active_mino.rotations.length - 1)
-            state = 0
+            state = state % this.active_mino.rotations.length;
         if(state < 0)
             state = this.active_mino.rotations.length - 1
         this.active_mino.rotate(state)
         const transition = `${old_state}${state}`
         const piece_offsets = this.wallkick_data[this.active_mino.meta.letter] || this.wallkick_data['default']
-        const transition_offsets = piece_offsets[transition]
+        const transition_offsets = piece_offsets[transition] || [[0,0]]
         console.log(transition)
         for(const offset of transition_offsets)
         {
@@ -192,6 +195,11 @@ export default class Tetris {
         this.rotate(this.active_mino.current_rotation - 1)
     }
 
+    rotate_180() {
+        this.last_try_lock = performance.now()
+        this.rotate(this.active_mino.current_rotation + 2)
+    }
+    
     move_left() {
         this.last_try_lock = performance.now()
         return this.move_mino(this.active_mino, -1, 0)
@@ -229,16 +237,32 @@ export default class Tetris {
     }
 
     softDropPressed() {
-        this.soft_dropping = true;
+        this.soft_dropping = true
     }
 
     softDropReleased() {
-        this.soft_dropping = false;
+        this.soft_dropping = false
     }
 
     hard_drop() {
         while(this.tick_down(true, this.active_mino, true))
             ;
+    }
+    hold_mino() {
+        if(this.can_hold) {
+            if(this.holded_mino == null) {
+                this.holded_mino = this.active_mino.clone();
+                this.active_mino = null;
+            }else {
+                this.holded_mino.x = Math.floor((this.width - this.holded_mino.rotations.length) / 2);
+                this.holded_mino.y = 0;
+                let tmp_mino = this.holded_mino;
+                this.holded_mino = this.active_mino;
+                this.active_mino = tmp_mino;
+                this.active_mino.last_drop_tick = performance.now();
+            }
+            this.can_hold = false;
+        }
     }
 }
 

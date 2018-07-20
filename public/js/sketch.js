@@ -9,6 +9,7 @@ new p5(( /** @type {p5} */ p) => {
         'MOVE_LEFT':  [37, 65],         // LEFT_ARROW, A
         'ROTATE_CW':  [38, 87, 88],     // UP_ARROW, W, X
         'ROTATE_CCW': [17, 90],         // CONTROL, Z
+        'ROTATE_180': [86],             // V
         'MOVE_RIGHT': [39, 68],         // RIGHT_ARROW, D
         'SOFT_DROP':  [40, 83],         // DOWN_ARROW, S
         'HARD_DROP':  [32],             // SPACE
@@ -37,6 +38,7 @@ new p5(( /** @type {p5} */ p) => {
             this.mino_renderer = new MinoRenderer({tile_size: this.tile_size})
         }
         render(tetris) {
+            p.translate(6 * this.tile_size, 0)
             p.background(0)
             for (const mino of tetris.fallen_minos) {
                 this.mino_renderer.render(mino)
@@ -57,7 +59,7 @@ new p5(( /** @type {p5} */ p) => {
         }
 
         render_queue() {
-            let x = (tetris.width + 0.5) * this.tile_size, y = tetris.height * this.tile_size
+            let x = (tetris.width + 0.5) * this.tile_size, y = tetris.visible_height * this.tile_size
             p.stroke(153);
             p.strokeWeight(this.tile_size)
             p.line(x, 0, x, y)
@@ -71,6 +73,20 @@ new p5(( /** @type {p5} */ p) => {
                         this.mino_renderer.render(mino)
                         mino_pos_start += 4;
                     })
+            }
+        }
+        render_holded() {
+            p.translate(-6 * this.tile_size, 0)
+            let x = (5 + 0.5) * this.tile_size, y = tetris.visible_height * this.tile_size
+            p.stroke(153);
+            p.strokeWeight(this.tile_size)
+            p.line(x, 0, x, y)
+            if(tetris.holded_mino != null) {
+                
+                tetris.holded_mino.x = 1;
+                tetris.holded_mino.y = 0;
+                this.mino_renderer.render(tetris.holded_mino)
+
             }
         }
     }
@@ -105,7 +121,7 @@ new p5(( /** @type {p5} */ p) => {
                     return tiles
                 })
         }
-        const canvas = p.createCanvas((tetris.width + 6) * renderer.tile_size, tetris.height * renderer.tile_size)
+        const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
         canvas.parent('sketch-holder')
     }
     
@@ -115,6 +131,7 @@ new p5(( /** @type {p5} */ p) => {
             tetris.update()
             renderer.render(tetris)
             renderer.render_queue()
+            renderer.render_holded()
         }
         else if(!paused)
         {
@@ -133,6 +150,9 @@ new p5(( /** @type {p5} */ p) => {
                 break;
             case keybinds['ROTATE_CCW'].includes(p.keyCode):
                 tetris.rotate_ccw()
+                break;
+            case keybinds['ROTATE_180'].includes(p.keyCode):
+                tetris.rotate_180()
                 break;
             case keybinds['MOVE_RIGHT'].includes(p.keyCode):
                 tetris.rightPressed()
