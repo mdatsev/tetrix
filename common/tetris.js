@@ -108,7 +108,7 @@ export default class Tetris {
         this.time = performance.now()
         if(!this.move_mino(mino, 0, 1)) {
             if(spawn) {
-                if(this.time - this.last_try_lock > 500 || ignore_lock_delay) {
+                if(this.time - this.last_try_lock > 3000 || ignore_lock_delay) {
                     this.lock_mino()
                     this.spawn_mino()
                     this.last_try_lock = Infinity
