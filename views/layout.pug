@@ -1,0 +1,28 @@
+doctype html
+html(lang="en")
+  head
+    block head
+      meta(charset="UTF-8")
+      link(rel='stylesheet', href='css/main.css')
+      title Tetrix
+  body
+    nav
+      block nav
+        .nav-header
+          a(href= '/') Tetrix
+
+        .nav-body
+          ul
+            li
+              a(href='/game')
+            
+            if (loged) 
+              li
+                a(href="/logout") Logout
+            else 
+              li
+                a(href='/login') Login
+              li
+                a(href='/register') Register
+
+    block content

@@ -1,0 +1,22 @@
+extends layout.pug
+
+block append content
+  .container-contact100
+    .wrap-contact100
+      form.contact100-form.validate-form(method="post" action="/login")
+        span.contact100-form-title
+          | Log in
+        if error != null
+          span.error-message
+            | #{error}
+        .wrap-input100.validate-input
+          input.input100(type="text" name="username" placeholder="Username")
+          span.focus-input100-1
+          span.focus-input100-2
+        .wrap-input100.validate-input
+          input.input100(type="password" name="password" placeholder="Password")
+          span.focus-input100-1
+          span.focus-input100-2
+        .container-contact100-form-btn
+          input.contact100-form-btn(type="submit" value="Log in")
+          a.contact100-form-btn(href="/register" style="margin-left: 4em") Register
