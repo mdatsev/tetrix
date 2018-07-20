@@ -8,10 +8,13 @@ var indexPostRouter = require('./routes/index_post');
 var gameGetRouter = require('./routes/game_get');
 var accountGetRouter =require('./routes/account_get');
 var shopGetRouter =require('./routes/shop_get');
+const Lobby = require('./schemas/Lobby');
+const User = require('./schemas/User');
 
 const Session = require('./schemas/Session');
 const mongoose = require('mongoose');
 var app = express();
+var socket = require('socket.io')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -58,6 +61,44 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+let server = app.listen(5000,(err)=>{
+  if (err)
+    console.log(err)
+  console.log("app listening on port 3000")
+})
+
+let io = socket(server)
+io.on('connection', (socket)=>{
+  socket.on('keypress', (data)=>{
+    console.log(data)  
+  })
+})
+var manager = io.of("/game/room").on('connection', function (socket) {
+  let uid;
+  let roomid;
+  socket.on("disconnect", async()=>{
+     await Lobby.update( {link: roomid}, { $pullAll: {players: [uid] } } ).exec()
+     socket.join(roomid);
+     manager.to(roomid).emit('player_left',uid);
+  })
+  socket.on("join", async(package)=>{
+      socket.join(package.roomID);
+      
+      uid = (await User.findOne({username: package.username}).exec()).id
+      roomid = package.roomID
+      let lobby = await Lobby.findOneAndUpdate(
+        {
+          "link":package.roomID,
+          $where:'this.players.length<this.max_players'
+        },
+        {
+          $push: {players: uid}
+        },
+        {"new":true}).populate('players').exec()
+       
+       manager.to(roomid).emit('player_join',lobby.players.map(p=>({username:p.username, id: p.id})));
+  })
+})
 
 // const Item = require('./schemas/Item')
 // Item.create({name: "gosho", tCoins: 15.5})
@@ -68,4 +109,5 @@ app.use(function(err, req, res, next) {
 // Skin.create({name: "skin2", imgPath: "skin2.png", tCoins: 100.68})
 // Skin.create({name: "skin3", imgPath: "skin3.png", tBucks: 30})
 // Skin.create({name: "skin4", imgPath: "skin4.png", tBucks: 100})
+
 module.exports = app;

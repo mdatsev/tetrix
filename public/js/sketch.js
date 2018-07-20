@@ -5,17 +5,6 @@ import Tetris from "/common/tetris.js"
 
 new p5(( /** @type {p5} */ p) => {
     let default_skin, ghost_skin
-    let keybinds = {
-        'MOVE_LEFT':  [37, 65],         // LEFT_ARROW, A
-        'ROTATE_CW':  [38, 87, 88],     // UP_ARROW, W, X
-        'ROTATE_CCW': [17, 90],         // CONTROL, Z
-        'MOVE_RIGHT': [39, 68],         // RIGHT_ARROW, D
-        'SOFT_DROP':  [40, 83],         // DOWN_ARROW, S
-        'HARD_DROP':  [32],             // SPACE
-        'HOLD_MINO':  [16, 67],         // SHIFT, C
-        'PAUSE':      [27, 112],        // ESC, F1
-
-    }
 
     class MinoRenderer {
         constructor({tile_size}) {
@@ -37,6 +26,7 @@ new p5(( /** @type {p5} */ p) => {
             this.mino_renderer = new MinoRenderer({tile_size: this.tile_size})
         }
         render(tetris) {
+            p.translate(6 * this.tile_size, 0)
             p.background(0)
             for (const mino of tetris.fallen_minos) {
                 this.mino_renderer.render(mino)
@@ -57,7 +47,7 @@ new p5(( /** @type {p5} */ p) => {
         }
 
         render_queue() {
-            let x = (tetris.width + 0.5) * this.tile_size, y = tetris.height * this.tile_size
+            let x = (tetris.width + 0.5) * this.tile_size, y = tetris.visible_height * this.tile_size
             p.stroke(153);
             p.strokeWeight(this.tile_size)
             p.line(x, 0, x, y)
@@ -73,6 +63,79 @@ new p5(( /** @type {p5} */ p) => {
                     })
             }
         }
+        render_holded() {
+            p.translate(-6 * this.tile_size, 0)
+            let x = (5 + 0.5) * this.tile_size, y = tetris.visible_height * this.tile_size
+            p.stroke(153);
+            p.strokeWeight(this.tile_size)
+            p.line(x, 0, x, y)
+            if(tetris.holded_mino != null) {
+                
+                tetris.holded_mino.x = 1;
+                tetris.holded_mino.y = 1;
+                tetris.holded_mino.current_rotation = 0;
+                this.mino_renderer.render(tetris.holded_mino)
+
+            }
+        }
+    }
+
+    class KeyboardManager {
+        constructor() {
+            this.keybinds = {
+                'MOVE_LEFT':  [37, 65],         // LEFT_ARROW, A
+                'ROTATE_CW':  [38, 87, 88],     // UP_ARROW, W, X
+                'ROTATE_CCW': [17, 90],         // CONTROL, Z
+                'ROTATE_180': [86],             // V
+                'MOVE_RIGHT': [39, 68],         // RIGHT_ARROW, D
+                'SOFT_DROP':  [40, 83],         // DOWN_ARROW, S
+                'HARD_DROP':  [32],             // SPACE
+                'HOLD_MINO':  [16, 67],         // SHIFT, C
+                'PAUSE':      [27, 112],        // ESC, F1
+        
+            }
+        }
+        keyPressed(keyCode) {
+            switch(true) {
+                case this.keybinds['MOVE_LEFT'].includes(keyCode):
+                    tetris.leftPressed()
+                    break;
+                case this.keybinds['ROTATE_CW'].includes(keyCode):
+                    tetris.rotate_cw()
+                    break;
+                case this.keybinds['ROTATE_CCW'].includes(keyCode):
+                    tetris.rotate_ccw()
+                    break;
+                case this.keybinds['ROTATE_180'].includes(keyCode):
+                    tetris.rotate_180()
+                    break;
+                case this.keybinds['MOVE_RIGHT'].includes(keyCode):
+                    tetris.rightPressed()
+                    break;
+                case this.keybinds['SOFT_DROP'].includes(keyCode):
+                    tetris.softDropPressed()
+                    break;
+                case this.keybinds['HARD_DROP'].includes(keyCode):
+                    tetris.hard_drop()
+                    break;
+                case this.keybinds['HOLD_MINO'].includes(keyCode):
+                    tetris.hold_mino()
+                    
+            }
+        }
+        keyReleased(keyCode) {
+            switch(true) {
+                case this.keybinds['MOVE_LEFT'].includes(keyCode):
+                    tetris.leftReleased()
+                    break;
+                case this.keybinds['MOVE_RIGHT'].includes(keyCode):
+                    tetris.rightReleased()
+                    break;
+                case this.keybinds['SOFT_DROP'].includes(keyCode):
+                    tetris.softDropReleased()
+                    break;
+            }
+        }
     }
     
     
@@ -81,6 +144,7 @@ new p5(( /** @type {p5} */ p) => {
     let SRS_wallkick
     let tetris
     let renderer = new TetrisRenderer()
+    let kb_manager = new KeyboardManager()
     let paused = false
 
     p.preload = () => {
@@ -108,7 +172,7 @@ new p5(( /** @type {p5} */ p) => {
                     return tiles
                 })
         }
-        const canvas = p.createCanvas((tetris.width + 6) * renderer.tile_size, tetris.height * renderer.tile_size)
+        const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
         canvas.parent('sketch-holder')
     }
     
@@ -118,6 +182,7 @@ new p5(( /** @type {p5} */ p) => {
             tetris.update()
             renderer.render(tetris)
             renderer.render_queue()
+            renderer.render_holded()
         }
         else if(!paused)
         {
@@ -127,42 +192,10 @@ new p5(( /** @type {p5} */ p) => {
     }
 
     p.keyPressed = () => {
-        switch(true) {
-            case keybinds['MOVE_LEFT'].includes(p.keyCode):
-                tetris.leftPressed()
-                break;
-            case keybinds['ROTATE_CW'].includes(p.keyCode):
-                tetris.rotate_cw()
-                break;
-            case keybinds['ROTATE_CCW'].includes(p.keyCode):
-                tetris.rotate_ccw()
-                break;
-            case keybinds['MOVE_RIGHT'].includes(p.keyCode):
-                tetris.rightPressed()
-                break;
-            case keybinds['SOFT_DROP'].includes(p.keyCode):
-                tetris.softDropPressed()
-                break;
-            case keybinds['HARD_DROP'].includes(p.keyCode):
-                tetris.hard_drop()
-                break;
-            case keybinds['HOLD_MINO'].includes(p.keyCode):
-                tetris.hold_mino()
-                
-        }
+        kb_manager.keyPressed(p.keyCode)
     }
 
     p.keyReleased = () => {
-        switch(true) {
-            case keybinds['MOVE_LEFT'].includes(p.keyCode):
-                tetris.leftReleased()
-                break;
-            case keybinds['MOVE_RIGHT'].includes(p.keyCode):
-                tetris.rightReleased()
-                break;
-            case keybinds['SOFT_DROP'].includes(p.keyCode):
-                tetris.softDropReleased()
-                break;
-        }
+        kb_manager.keyReleased(p.keyCode)
     }
 })

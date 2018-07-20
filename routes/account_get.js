@@ -24,8 +24,10 @@ router.get('/friends/add', async(req,res)=>{
     let all_users = await User.find({}).exec();
     let cur_user = await User.findOne({username:req.username}).populate('requests').exec()
     let cur_user_friends = await User.findOne({username:req.username}).populate('friends').exec()
+    
     let request_usernames = cur_user.requests.map(u => u.username)
     let friends_username =  cur_user_friends.friends.map(u => u.username)
+
     console.log(friends_username)
     let filtered = all_users.filter(u=>!request_usernames.includes(u.username) && u.username!=req.username && !friends_username.includes(u.username))
     
