@@ -2,7 +2,10 @@
 import Mino from "./mino.js"
 export default class Tetris {
     constructor(pieces, wallkick_data) {
-        this.lock_delay = 400
+        this.lock_delay_default = 3000
+        this.current_lock_delay = this.lock_delay_default
+        this.last_time_diff = 0
+        this.lock_delay_updated = false
         this.last_try_lock = Infinity
         this.pieces = pieces
         this.wallkick_data = wallkick_data || {'default': [[0, 0]]}
@@ -84,7 +87,7 @@ export default class Tetris {
         }
         
         if(this.active_mino instanceof Mino) {
-            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 10 : 1500)) {
+            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 10 : 1000)) {
                 this.tick_down()
             }
         }
@@ -108,14 +111,33 @@ export default class Tetris {
         this.time = performance.now()
         if(!this.move_mino(mino, 0, 1)) {
             if(spawn) {
-                if(this.time - this.last_try_lock > 3000 || ignore_lock_delay) {
+                if(this.last_try_lock == Infinity) {
+                    this.last_try_lock = performance.now()
+                    console.log('coll')
+                }
+                this.last_time_diff = this.time - this.last_try_lock
+                this.lock_delay_updated = false
+                console.log('inside diff' + this.last_time_diff);
+                if(this.last_time_diff >= this.current_lock_delay || ignore_lock_delay) {
                     this.lock_mino()
                     this.spawn_mino()
                     this.last_try_lock = Infinity
+                    this.current_lock_delay = this.lock_delay_default
+                    this.last_time_diff = 0
+                    this.lock_delay_updated = true
                 }
+                console.log('Curr lock' + this.current_lock_delay)
             }
             return false
+        }else {
+            if(!this.lock_delay_updated) {
+                console.log('diff ' + this.last_time_diff)
+                this.current_lock_delay -= this.last_time_diff
+                this.lock_delay_updated = true
+            }
+            this.last_try_lock = Infinity
         }
+
         mino.last_drop_tick = performance.now()
         return true
     }
@@ -187,27 +209,22 @@ export default class Tetris {
         this.active_mino.rotate(old_state)
     }
     rotate_cw() {
-        this.last_try_lock = performance.now()
         this.rotate(this.active_mino.current_rotation + 1)
     }
 
     rotate_ccw() {
-        this.last_try_lock = performance.now()
         this.rotate(this.active_mino.current_rotation - 1)
     }
 
     rotate_180() {
-        this.last_try_lock = performance.now()
         this.rotate(this.active_mino.current_rotation + 2)
     }
     
     move_left() {
-        this.last_try_lock = performance.now()
         return this.move_mino(this.active_mino, -1, 0)
     }
 
     move_right() {
-        this.last_try_lock = performance.now()
         return this.move_mino(this.active_mino, 1, 0)
     }
 
