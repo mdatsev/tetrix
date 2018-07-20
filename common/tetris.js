@@ -31,7 +31,8 @@ export default class Tetris {
         }
         const letter = this.minos_bag.shift();
         const srs_mino = [...this.pieces[letter]]
-        this.active_mino = new Mino(srs_mino, Math.floor((this.width - srs_mino.length) / 2), 0, {letter})
+        console.log(srs_mino.length)
+        this.active_mino = new Mino(srs_mino, Math.floor((this.width - 4) / 2), 0, {letter})
         
         if(this.mino_collides())
             this.dead = true
@@ -254,7 +255,7 @@ export default class Tetris {
                 this.holded_mino = this.active_mino.clone();
                 this.active_mino = null;
             }else {
-                this.holded_mino.x = Math.floor((this.width - this.holded_mino.rotations.length) / 2);
+                this.holded_mino.x = Math.floor((this.width - 4) / 2);
                 this.holded_mino.y = 0;
                 let tmp_mino = this.holded_mino;
                 this.holded_mino = this.active_mino;

@@ -84,7 +84,8 @@ new p5(( /** @type {p5} */ p) => {
             if(tetris.holded_mino != null) {
                 
                 tetris.holded_mino.x = 1;
-                tetris.holded_mino.y = 0;
+                tetris.holded_mino.y = 1;
+                tetris.holded_mino.current_rotation = 0;
                 this.mino_renderer.render(tetris.holded_mino)
 
             }
