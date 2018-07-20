@@ -14,7 +14,7 @@ block append head
       var socket = io.connect('http://' + document.domain + ':' + location.port);
       $('document').ready(()=>{
         $(document).on('keypress', function(e) {
-        socket.emit('keypress', {keyCode: e.keyCode});
+          socket.emit('keypress', {keyCode: e.keyCode});
         })
       })
 
