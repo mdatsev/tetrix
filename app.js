@@ -1,20 +1,26 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const fs = require('fs')
 
-var logger = require('morgan');
-var indexGetRouter = require('./routes/index_get');
-var indexPostRouter = require('./routes/index_post');
-var gameGetRouter = require('./routes/game_get');
-var accountGetRouter =require('./routes/account_get');
-var shopGetRouter =require('./routes/shop_get');
+const indexGetRouter = require('./routes/index_get');
+const indexPostRouter = require('./routes/index_post');
+const gameGetRouter = require('./routes/game_get');
+const accountGetRouter =require('./routes/account_get');
+const shopGetRouter =require('./routes/shop_get');
+
+
 const Lobby = require('./schemas/Lobby');
 const User = require('./schemas/User');
-
+const Item = require('./schemas/Item');
+const Skin = require('./schemas/Skin');
 const Session = require('./schemas/Session');
+
+
 const mongoose = require('mongoose');
-var app = express();
-var socket = require('socket.io')
+const app = express();
+const socket = require('socket.io')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,9 +28,18 @@ app.set('view engine', 'pug');
 
 mongoose.connect('mongodb://localhost/tetrix');
 var db = mongoose.connection;
-db.once('open', function(err) {
+db.once('open', async(err)=> {
     if(err)
       console.log(err)
+    let skins = JSON.parse(fs.readFileSync('./models/skins.json').toString());
+    for(skin of skins){
+      let exists = await Skin.findOne({name:skin.name}).exec()
+      
+      if(!exists){
+        
+        Skin.create(skin)
+      }
+    }
 })
 db.on('error', console.error.bind(console, 'connection error:'));
 
@@ -64,7 +79,7 @@ app.use(function(err, req, res, next) {
 let server = app.listen(5000,(err)=>{
   if (err)
     console.log(err)
-  console.log("app listening on port 3000")
+  console.log("app listening on port 5000")
 })
 
 let io = socket(server)
@@ -100,14 +115,5 @@ var manager = io.of("/game/room").on('connection', function (socket) {
   })
 })
 
-// const Item = require('./schemas/Item')
-// Item.create({name: "gosho", tCoins: 15.5})
-
-// const Skin = require('./schemas/Skin')
-// Skin.create({name: "skin", imgPath: "skin.png", tCoins: 0})
-// Skin.create({name: "skin1", imgPath: "skin1.png", tBucks: 10})
-// Skin.create({name: "skin2", imgPath: "skin2.png", tCoins: 100.68})
-// Skin.create({name: "skin3", imgPath: "skin3.png", tBucks: 30})
-// Skin.create({name: "skin4", imgPath: "skin4.png", tBucks: 100})
 
 module.exports = app;
