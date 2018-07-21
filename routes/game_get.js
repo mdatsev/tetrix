@@ -29,7 +29,6 @@ router.post('/create', async(req,res)=>{
 })
 router.get('/room/:id', (req,res)=>{
   if(!req.username) return res.redirect('/login')
-  console.log(req.username)
   res.render('Room',{players:[], username:req.username})
 })
 

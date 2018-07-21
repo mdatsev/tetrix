@@ -50,6 +50,7 @@ app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/common', express.static(path.join(__dirname, 'common')));
+app.use('/game', express.static(path.join(__dirname, 'public')));
 
 app.use(function(req,res,next){
   res.locals.loged = false
@@ -92,7 +93,12 @@ var manager = io.of("/game/room").on('connection', function (socket) {
   let uid;
   let roomid;
   socket.on("disconnect", async()=>{
-     await Lobby.update( {link: roomid}, { $pullAll: {players: [uid] } } ).exec()
+     let lobby = await Lobby.findOneAndUpdate( {link: roomid}, { $pullAll: {players: [uid] }}, {"new":true}  ).exec()
+     
+     if(lobby.players.length == 0){
+       
+       await Lobby.deleteOne({link:roomid}).exec()
+     }
      socket.join(roomid);
      manager.to(roomid).emit('player_left',uid);
   })
@@ -111,7 +117,7 @@ var manager = io.of("/game/room").on('connection', function (socket) {
         },
         {"new":true}).populate('players').exec()
        
-       manager.to(roomid).emit('player_join',lobby.players.map(p=>({username:p.username, id: p.id})));
+        manager.to(roomid).emit('player_join',lobby.players.map(p=>({username:p.username, id: p.id})));
   })
 })
 
