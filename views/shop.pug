@@ -1,0 +1,46 @@
+extends layout
+
+block append content
+    script(type="text/javascript").
+        function buyItem(name) {
+            $.post( "/shop/item", {
+                itemName: name
+            }).done((data) => {
+                alert("Data: " + data.message);
+            });
+        }
+
+        function buySkin(name) {
+            $.post( "/shop/skin", {
+                skinName: name
+            }).done((data) => {
+                alert("Data: " + data.message);
+            });
+        }
+
+    if items
+        .shop-items
+            h1 Items
+            each item in items
+                .shop-item
+                    h2 #{item.name}
+                    a(href="javascript:void(0)" onclick="buyItem(\"" + item.name + "\")")
+                        if(item.tBucks)
+                            | #{item.tBucks} T-Bucks
+                        else
+                            | #{item.tCoins} T-Coins
+            else
+                p No items
+
+    if skins
+        .shop-skins
+            h1 Skins
+            each skin in skins
+                .shop-skin
+                    a(href="javascript:void(0)" onclick="buySkin(\"" + skin.name + "\")")
+                        if(skin.tBucks)
+                            | #{skin.tBucks} T-Bucks
+                        else
+                            | #{skin.tCoins} T-Coins
+            else
+                p No skins

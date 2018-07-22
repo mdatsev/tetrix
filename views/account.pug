@@ -5,3 +5,31 @@ block content
   P Your friends:
   each fr in user.friends
     p #{fr.username}
+
+  .acc-skins
+    h1 Skins
+    each skin in user.skins
+      .acc-skin
+        | #{skin.name}
+        if(user.equippedSkin.name === skin.name)
+          button(type="button" onclick="equipSkin(\"" + skin.name + "\")" id=skin.name disabled) equipped
+        else
+          button(type="button" onclick="equipSkin(\"" + skin.name + "\")" id=skin.name) equip
+    else
+      p No skins
+
+  script(type="text/javascript").
+    function equipSkin(name) {
+      $.post( "/account/skin", {
+        skinName: name
+      }).done((data) => {
+        var buttons = $("div.acc-skins").find("button")
+        for(b of buttons) {
+          b.disabled = false;
+          b.innerHTML = "equip"
+        }
+        let el = document.getElementById(name)
+        el.disabled = true;
+        el.innerHTML = "equipped"
+      });
+    }
