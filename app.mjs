@@ -1,43 +1,48 @@
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const fs = require('fs')
+import express from "express";
+import path from "path";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
+import fs from "fs";
+import indexGetRouter from "./routes/index_get";
+import indexPostRouter from "./routes/index_post";
+import gameGetRouter from "./routes/game_get";
+import accountGetRouter from "./routes/account_get";
+import shopGetRouter from "./routes/shop_get";
+const __dirname = path.dirname(new URL(import.meta.url).pathname).substr(1);
 
-const indexGetRouter = require('./routes/index_get');
-const indexPostRouter = require('./routes/index_post');
-const gameGetRouter = require('./routes/game_get');
-const accountGetRouter =require('./routes/account_get');
-const shopGetRouter =require('./routes/shop_get');
+import Lobby from "./schemas/Lobby";
+import User from "./schemas/User";
+import Item from "./schemas/Item";
+import Skin from "./schemas/Skin";
+import Session from "./schemas/Session";
 
 
-const Lobby = require('./schemas/Lobby');
-const User = require('./schemas/User');
-const Item = require('./schemas/Item');
-const Skin = require('./schemas/Skin');
-const Session = require('./schemas/Session');
-
-
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 const app = express();
-const socket = require('socket.io')
+import socket from "socket.io";
 
 // view engine setup
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/common', express.static(path.join(__dirname, 'common')));
+app.use('/game', express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
+
+
+
 app.set('view engine', 'pug');
 
 mongoose.connect('mongodb://localhost/tetrix');
-var db = mongoose.connection;
+var db = mongoose.connection
 db.once('open', async(err)=> {
     if(err)
       console.log(err)
     let skins = JSON.parse(fs.readFileSync('./models/skins.json').toString());
-    for(skin of skins){
+    for(let skin of skins){
       let exists = await Skin.findOne({name:skin.name}).exec()
       
       if(!exists){
         
-        Skin.create(skin)
+        create(skin)
       }
     }
 })
@@ -48,9 +53,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/common', express.static(path.join(__dirname, 'common')));
-app.use('/game', express.static(path.join(__dirname, 'public')));
 
 app.use(function(req,res,next){
   res.locals.loged = false
@@ -102,14 +104,14 @@ var manager = io.of("/game/room").on('connection', function (socket) {
      socket.join(roomid);
      manager.to(roomid).emit('player_left',uid);
   })
-  socket.on("join", async(package)=>{
-      socket.join(package.roomID);
+  socket.on("join", async(pkg)=>{
+      socket.join(pkg.roomID);
       
-      uid = (await User.findOne({username: package.username}).exec()).id
-      roomid = package.roomID
+      uid = (await User.findOne({username: pkg.username}).exec()).id
+      roomid = pkg.roomID
       let lobby = await Lobby.findOneAndUpdate(
         {
-          "link":package.roomID,
+          "link":pkg.roomID,
           $where:'this.players.length<this.max_players'
         },
         {
@@ -122,4 +124,4 @@ var manager = io.of("/game/room").on('connection', function (socket) {
 })
 
 
-module.exports = app;
+export default app;

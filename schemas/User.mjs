@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 const ObjectId= mongoose.Schema.Types.ObjectId
-var userSchema = new Schema({
+const userSchema = new Schema({
   username:String,
   password:String,
   tBucks: {type: Number, default: 0},
@@ -12,6 +12,6 @@ var userSchema = new Schema({
   skins:[{type:ObjectId, ref:"Skin"}],
   equippedSkin: {type:ObjectId, ref:"Skin"}
 });
-let User =  mongoose.model("User", userSchema)
+const User =  mongoose.model("User", userSchema)
 
-module.exports = User
+export default User;

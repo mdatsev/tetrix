@@ -1,12 +1,12 @@
-var express = require('express');
+import express from "express";
 var router = express.Router();
-const Session = require('../schemas/Session')
-const Item = require('../schemas/Item')
-const Skin = require('../schemas/Skin')
-const User = require('../schemas/User')
+import Session from "../schemas/Session";
+import Item from "../schemas/Item";
+import Skin from "../schemas/Skin";
+import User from "../schemas/User";
 
 router.use((req, res, next) => {
-  Session.findOne({token: req.cookies.sessionToken}).then((ses)=>{
+	Session.findOne({token: req.cookies.sessionToken}).then((ses)=>{
       if(ses){
         req.username = ses.username
       }
@@ -72,4 +72,4 @@ router.post('/skin', async (req, res) => {
 	}
 	res.send({message: "Not enough T-Bucks/T-Coins"})
 })
-module.exports = router;
+export default router;

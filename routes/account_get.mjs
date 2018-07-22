@@ -1,12 +1,12 @@
-var express = require('express');
+import express from "express";
 var router = express.Router();
-const Session = require('../schemas/Session')
-const User = require('../schemas/User')
-const Skin = require('../schemas/Skin')
+import Session from "../schemas/Session";
+import User from "../schemas/User";
+import Skin from "../schemas/Skin";
 
 
 router.use((req, res, next)=> {
-  Session.findOne({token: req.cookies.sessionToken}).then((ses)=>{
+    Session.findOne({token: req.cookies.sessionToken}).then((ses)=>{
       if(ses){
         req.username = ses.username
       }
@@ -21,7 +21,7 @@ router.get('/', async(req, res)=> {
 router.get('/friends/add', async(req,res)=>{
     if(!req.username) return res.redirect('/login')
     
-    let all_users = await User.find({}).exec();
+    let all_users = await find({}).exec();
     let cur_user = await User.findOne({username:req.username}).populate('requests').exec()
     let cur_user_friends = await User.findOne({username:req.username}).populate('friends').exec()
     
@@ -76,4 +76,4 @@ router.post('/skin', async function(req, res) {
 });
 
 
-module.exports = router;
+export default router;
