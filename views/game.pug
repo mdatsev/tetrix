@@ -10,13 +10,13 @@ block append head
     link(rel="stylesheet" href="css/canvas.css")
     script(type="text/javascript" src="vendor/socketio.js")
     script(src="vendor/jquery-3.3.1.min.js")
-    script(type="text/javascript" charset="utf-8").
-      var socket = io.connect('http://' + document.domain + ':' + location.port);
-      $('document').ready(()=>{
-        $(document).on('keypress', function(e) {
-          socket.emit('keypress', {keyCode: e.keyCode});
-        })
-      })
+    //- script(type="text/javascript" charset="utf-8").
+    //-   var socket = io.connect('http://' + document.domain + ':' + location.port);
+    //-   $('document').ready(()=>{
+    //-     $(document).on('keypress', function(e) {
+    //-       socket.emit('keypress', {keyCode: e.keyCode});
+    //-     })
+    //-   })
 
 block append content
     #sketch-holder

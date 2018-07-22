@@ -1,7 +1,7 @@
 // @ts-check
 /// <reference path="../vendor/p5.d.ts" />
-import Mino from "/common/mino.js"
-import Tetris from "/common/tetris.js"
+import Mino from "/common/mino.mjs"
+import Tetris from "/common/tetris.mjs"
 
 new p5(( /** @type {p5} */ p) => {
     let default_skin, ghost_skin
@@ -231,6 +231,7 @@ new p5(( /** @type {p5} */ p) => {
     let renderer = new TetrisRenderer()
     let kb_manager = new KeyboardManager()
     let paused = false
+    let socket
 
     p.preload = () => {
         SRS = p.loadJSON('/data/SRS_rotations.json')
@@ -243,6 +244,7 @@ new p5(( /** @type {p5} */ p) => {
     }
 
     p.setup = () => {
+        socket = io.connect('http://' + document.domain + ':' + location.port);
         tetris = new Tetris(SRS_tiles, SRS_wallkick)
         for (const mino in SRS) {
             SRS_tiles[mino] = SRS[mino]
@@ -264,8 +266,9 @@ new p5(( /** @type {p5} */ p) => {
     p.draw = () => {
         if(!tetris.dead)
         {
-            tetris.update(kb_manager.get_inputs())
-            kb_manager.update_inputs()
+            let inputs = kb_manager.get_inputs()
+            socket.emit('inputs', inputs);
+            tetris.update(inputs)
             renderer.render(tetris)
             renderer.render_queue()
             renderer.render_holded()

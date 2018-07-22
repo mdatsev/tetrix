@@ -1,5 +1,6 @@
 // @ts-check
-import Mino from "./mino.js"
+import Mino from "./mino.mjs"
+
 export default class Tetris {
     constructor(pieces, wallkick_data) {
         this.lock_delay = 400
@@ -24,9 +25,10 @@ export default class Tetris {
         if(this.minos_bag.length <= 5) {
             this.generate_bag();
         }
+        console.log(Date.now())
         const letter = this.minos_bag.shift();
         const srs_mino = [...this.pieces[letter]]
-        console.log(srs_mino.length)
+        
         this.active_mino = new Mino(srs_mino, Math.floor((this.width - 4) / 2), 0, {letter})
         
         if(this.mino_collides())
@@ -44,7 +46,7 @@ export default class Tetris {
     }
     
     update(input) {
-        this.time = performance.now()
+        this.time = Date.now()
         if(this.active_mino instanceof Mino) {
             if(this.time - this.active_mino.last_drop_tick > 
                 (input.soft_dropping ? 10 : 1500)) {
@@ -97,7 +99,7 @@ export default class Tetris {
     }
 
     tick_down(spawn = true, mino = this.active_mino, ignore_lock_delay = false) {
-        this.time = performance.now()
+        this.time = Date.now()
         if(!this.move_mino(mino, 0, 1)) {
             if(spawn) {
                 if(this.time - this.last_try_lock > 3000 || ignore_lock_delay) {
@@ -108,7 +110,7 @@ export default class Tetris {
             }
             return false
         }
-        mino.last_drop_tick = performance.now()
+        mino.last_drop_tick = Date.now()
         return true
     }
 
@@ -179,27 +181,27 @@ export default class Tetris {
         this.active_mino.rotate(old_state)
     }
     rotate_cw() {
-        this.last_try_lock = performance.now()
+        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation + 1)
     }
 
     rotate_ccw() {
-        this.last_try_lock = performance.now()
+        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation - 1)
     }
 
     rotate_180() {
-        this.last_try_lock = performance.now()
+        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation + 2)
     }
     
     move_left() {
-        this.last_try_lock = performance.now()
+        this.last_try_lock = Date.now()
         return this.move_mino(this.active_mino, -1, 0)
     }
 
     move_right() {
-        this.last_try_lock = performance.now()
+        this.last_try_lock = Date.now()
         return this.move_mino(this.active_mino, 1, 0)
     }
 
@@ -218,7 +220,7 @@ export default class Tetris {
                 let tmp_mino = this.holded_mino;
                 this.holded_mino = this.active_mino;
                 this.active_mino = tmp_mino;
-                this.active_mino.last_drop_tick = performance.now();
+                this.active_mino.last_drop_tick = Date.now();
             }
             this.can_hold = false;
         }

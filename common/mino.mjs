@@ -6,7 +6,7 @@ export default class Mino {
         this.y = y
         this.current_rotation = 0
         this.meta = meta || {}
-        this.last_drop_tick = performance.now()
+        this.last_drop_tick = Date.now()
     }
 
     rotate(state) {
