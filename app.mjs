@@ -43,8 +43,7 @@ db.once('open', async(err)=> {
       let exists = await Skin.findOne({name:skin.name}).exec()
       
       if(!exists){
-        
-        create(skin)
+        await Skin.create(skin)
       }
     }
 })
@@ -56,7 +55,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
-app.use(function(req,res,next){
+app.use(function(req,res,next) {
   res.locals.loged = false
   Session.findOne({token: req.cookies.sessionToken}).then(sess => {
     if(sess) {
