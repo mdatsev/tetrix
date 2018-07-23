@@ -11,6 +11,7 @@ new p5(( /** @type {p5} */ p) => {
             this.tile_size = tile_size
         }
         render(mino) {
+            if(!mino) return
             const tiles = mino.get_tiles_on_board()
             const ts = this.tile_size;
             for(const tile of tiles) {
@@ -38,6 +39,7 @@ new p5(( /** @type {p5} */ p) => {
         }
 
         render_ghost() {
+            if(!tetris.active_mino) return
             let ghost = tetris.active_mino.clone()
             while(tetris.tick_down(false, ghost))
                 ;
@@ -269,6 +271,9 @@ new p5(( /** @type {p5} */ p) => {
         }
         const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
         canvas.parent('sketch-holder')
+        socket.on('sync', function (data) {
+            tetris.deserialize(data)
+        });
     }
     
     p.draw = () => {
@@ -276,7 +281,7 @@ new p5(( /** @type {p5} */ p) => {
         {
             let inputs = kb_manager.get_inputs()
             socket.emit('inputs', inputs);
-            tetris.update(inputs)
+            // tetris.update(inputs)
             renderer.render(tetris)
             renderer.render_queue()
             renderer.render_holded()

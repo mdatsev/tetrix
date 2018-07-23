@@ -20,7 +20,7 @@ export default function tetrisHandler(io){
         }
         let tetris = new Tetris(SRS_tiles, SRS_wallkick)
         socket.on('inputs', (data)=>{
-          //console.log(data)
+          socket.emit('sync', tetris.serialize())
           tetris.update(data)
         })
     })

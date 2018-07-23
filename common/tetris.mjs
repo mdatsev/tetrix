@@ -25,7 +25,6 @@ export default class Tetris {
         if(this.minos_bag.length <= 5) {
             this.generate_bag();
         }
-        console.log(Date.now())
         const letter = this.minos_bag.shift();
         const srs_mino = [...this.pieces[letter]]
         
@@ -47,7 +46,8 @@ export default class Tetris {
     
     update(input) {
         this.time = Date.now()
-        if(this.active_mino instanceof Mino) {
+        // if(this.active_mino instanceof Mino) {
+        if(this.active_mino) {
             if(this.time - this.active_mino.last_drop_tick > 
                 (input.soft_dropping ? 10 : 1500)) {
                 this.tick_down()
@@ -244,6 +244,16 @@ export default class Tetris {
             }
             this.can_hold = false;
         }
+    }
+    serialize() {
+        return JSON.stringify(this)
+    }
+    deserialize(str) {
+        /** @type {Tetris} */
+        let tetr = JSON.parse(str)
+        tetr.active_mino = Mino.from(tetr.active_mino)
+        tetr.fallen_minos = tetr.fallen_minos.map(Mino.from)
+        Object.assign(this, tetr)
     }
 }
 
