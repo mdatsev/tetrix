@@ -57,6 +57,7 @@ function createTetris(parent){
             canvas.parent(parent)
             canvas.parent('sketch-holder')
             socket.on('sync', function (data) {
+                //console.log(data)
                 tetris.deserialize(data)
             });
         }
