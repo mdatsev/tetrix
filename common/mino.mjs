@@ -45,4 +45,10 @@ export default class Mino {
             this.y += x_or_xy[1]
         }
     }
+
+    static from(obj) {
+        if(!obj) return obj
+        let ret = new Mino(obj.rotations, obj.x, obj.y, obj.meta)
+        return Object.assign(ret, obj);
+    }
 }
