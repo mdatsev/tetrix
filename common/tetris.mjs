@@ -75,6 +75,26 @@ export default class Tetris {
                 break
         }
 
+        switch(input.rotation) {
+            case 'cw':
+                this.rotate_cw()
+                break
+            case 'ccw':
+                this.rotate_ccw()
+                break
+            case '180':
+                this.rotate_180()
+                break
+        }
+
+        if(input.hold) {
+            this.hold_mino()
+        }
+
+        if(input.hard_drop) {
+            this.hard_drop()
+        }
+
         this.check_clear()
     }
 
