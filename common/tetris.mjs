@@ -69,10 +69,30 @@ export default class Tetris {
                 this.move_left()
                 break
             case 'left_das-1':
-                this.das_right
+                this.das_left()
             case 'right':
                 this.move_right()
                 break
+        }
+
+        switch(input.rotation) {
+            case 'cw':
+                this.rotate_cw()
+                break
+            case 'ccw':
+                this.rotate_ccw()
+                break
+            case '180':
+                this.rotate_180()
+                break
+        }
+
+        if(input.hold) {
+            this.hold_mino()
+        }
+
+        if(input.hard_drop) {
+            this.hard_drop()
         }
 
         this.check_clear()
@@ -213,7 +233,7 @@ export default class Tetris {
         if(this.can_hold) {
             if(this.holded_mino == null) {
                 this.holded_mino = this.active_mino.clone();
-                this.active_mino = null;
+                this.spawn_mino()
             } else {
                 this.holded_mino.x = Math.floor((this.width - 4) / 2);
                 this.holded_mino.y = 0;

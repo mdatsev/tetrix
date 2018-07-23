@@ -1,7 +1,7 @@
 [
     {"name": "skin", "imgPath": "skin.png", "tCoins": 0},
-    {"name": "skin1", "imgPath": "skin1.png", "tCoins": 10},
+    {"name": "skin1", "imgPath": "skin1.png", "tBucks": 10},
     {"name": "skin2", "imgPath": "skin2.png", "tCoins": 100.68},
-    {"name": "skin3", "imgPath": "skin3.png", "tCoins": 30},
+    {"name": "skin3", "imgPath": "skin3.png", "tBucks": 30},
     {"name": "skin4", "imgPath": "skin4.png", "tCoins": 100}
 ]

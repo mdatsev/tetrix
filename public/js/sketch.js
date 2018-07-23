@@ -2,6 +2,7 @@
 /// <reference path="../vendor/p5.d.ts" />
 import Mino from "/common/mino.mjs"
 import Tetris from "/common/tetris.mjs"
+
 let default_skin, ghost_skin
 class MinoRenderer {
     constructor({tile_size,renderer}) {
@@ -17,9 +18,9 @@ class MinoRenderer {
     }
 }
 class TetrisRenderer {
-    constructor(renderer) {
-        this.tile_size = 25
-        this.queue_size = 5;
+    constructor(renderer, tile_size, queue_size) {
+        this.tile_size = tile_size
+        this.queue_size = queue_size;
         this.renderer  = renderer
         this.mino_renderer = new MinoRenderer({tile_size: this.tile_size, renderer:this.renderer})
     }
@@ -104,31 +105,31 @@ class KeyboardManager {
         const isKeyFor = action => this.keybinds[action].includes(keyCode)
         switch(true) {
             case isKeyFor('MOVE_LEFT'):
-                this.leftPressed()
-                break;
-            case isKeyFor('ROTATE_CW'):
-                tetris.rotate_cw()
-                break;
-            case isKeyFor('ROTATE_CCW'):
-                tetris.rotate_ccw()
-                break;
-            case isKeyFor('ROTATE_180'):
-                tetris.rotate_180()
-                break;
-            case isKeyFor('MOVE_RIGHT'):
-                this.rightPressed()
-                break;
-            case isKeyFor('SOFT_DROP'):
-                this.softDropPressed()
-                break;
-            case isKeyFor('HARD_DROP'):
-                tetris.hard_drop()
-                break;
-            case isKeyFor('HOLD_MINO'):
-                tetris.hold_mino()
-                break;
-        }
+            this.leftPressed()
+            break;
+        case isKeyFor('ROTATE_CW'):
+            this.rotation = 'cw'
+            break;
+        case isKeyFor('ROTATE_CCW'):
+            this.rotation = 'ccw'
+            break;
+        case isKeyFor('ROTATE_180'):
+            this.rotation = '180'
+            break;
+        case isKeyFor('MOVE_RIGHT'):
+            this.rightPressed()
+            break;
+        case isKeyFor('SOFT_DROP'):
+            this.softDropPressed()
+            break;
+        case isKeyFor('HARD_DROP'):
+            this.hard_drop = true
+            break;
+        case isKeyFor('HOLD_MINO'):
+            this.hold = true
+            break;
     }
+}
 
     keyReleased(keyCode) {
         const isKeyFor = action => this.keybinds[action].includes(keyCode)
@@ -176,13 +177,22 @@ class KeyboardManager {
             this.moved_left = true
         else if(move == 'right' || move == 'left_das-1')
             this.moved_right = true
-        return {
+
+        let inputs = {
             move,
-            soft_dropping: this.soft_dropping
+            soft_dropping: this.soft_dropping,
+            rotation: this.rotation,
+            hard_drop: this.hard_drop,
+            hold: this.hold
         }
+        this.rotation = ''
+        this.hard_drop = this.hold = false
+
+        return inputs
     }
 
     update_inputs() {
+
 
     }
 
@@ -219,14 +229,21 @@ class KeyboardManager {
         this.soft_dropping = false
     }
 }
-function createTetris(parent){
+let kb_manager = new KeyboardManager()
+
+window.addEventListener('keydown', (e)=>{
+        kb_manager.keyPressed(e.keyCode)
+})
+window.addEventListener('keyup', (e)=>{
+    kb_manager.keyReleased(e.keyCode)
+})
+function createTetris(parent,debug){
     return new p5(( /** @type {p5} */ p) => {
         let SRS
         let SRS_tiles = {}
         let SRS_wallkick
         let tetris
-        let renderer = new TetrisRenderer(p)
-        let kb_manager = new KeyboardManager()
+        let renderer = new TetrisRenderer(p, 10,5)
         let paused = false
         let socket
     
@@ -266,6 +283,9 @@ function createTetris(parent){
             {
                 let inputs = kb_manager.get_inputs()
                 socket.emit('inputs', inputs);
+                if(debug){
+                    console.log(inputs)
+                }
                 tetris.update(inputs)
                 renderer.render(tetris)
                 renderer.render_queue(tetris, SRS_tiles)
@@ -277,15 +297,7 @@ function createTetris(parent){
                 tetris = new Tetris(SRS_tiles)
             }
         }
-    
-        p.keyPressed = () => {
-            kb_manager.keyPressed(p.keyCode)
-        }
-    
-        p.keyReleased = () => {
-            kb_manager.keyReleased(p.keyCode)
-        }
     })    
 }
-var a = createTetris('sketch-holder')
-var b = createTetris('sketch-holder1')
+var a = createTetris('sketch-holder', false)
+var b = createTetris('sketch-holder1', true)
