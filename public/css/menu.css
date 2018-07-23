@@ -11,7 +11,8 @@
 }
 
 .vertical-menu a:hover {
-    background-color: #ccc; /* Dark grey background on mouse-over */
+    background-color: #4CAF50; /* Dark grey background on mouse-over */
+    color: white;
 }
 
 .vertical-menu a.active {
