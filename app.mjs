@@ -11,7 +11,7 @@ import shopGetRouter from "./routes/shop_get";
 import lobbyHandler from "./sockets/lobby";
 import tetrisHandler from "./sockets/tetris";
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+let __dirname = path.dirname(new URL(import.meta.url).pathname);
 if(process.platform == "win32") {
   __dirname = __dirname.substr(1)
 }
