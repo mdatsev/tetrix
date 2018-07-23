@@ -20,8 +20,7 @@ export default class Tetris {
         this.fallen_minos = []
         this.minos_bag = []
         this.dead = false
-        this.dasing_left = false
-        this.dasing_right = false
+        this.event_queue = []
     }
 
     spawn_mino() {
@@ -125,11 +124,15 @@ export default class Tetris {
         mino.x += x
         mino.y += y
         if(this.mino_collides(mino)) {
-            this.move_mino(mino, -x, -y)
+            mino.x -= x
+            mino.y -= y
             return false
         }
         if(!move_if_possible) 
-            this.move_mino(mino, -x, -y)
+        {
+            mino.x -= x
+            mino.y -= y
+        }
         return true
     }
 
@@ -177,6 +180,7 @@ export default class Tetris {
         {
             if(line.length == this.width)
             {
+                this.event_queue.push('line_clear')
                 for(let mino of this.fallen_minos)
                 {
                     for(const tile of line)
