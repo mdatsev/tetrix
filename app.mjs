@@ -14,9 +14,6 @@ import tetrisHandler from "./sockets/tetris";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname).substr(1);
 
-import Lobby from "./schemas/Lobby";
-import User from "./schemas/User";
-import Item from "./schemas/Item";
 import Skin from "./schemas/Skin";
 import Session from "./schemas/Session";
 
