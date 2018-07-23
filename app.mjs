@@ -11,11 +11,11 @@ import shopGetRouter from "./routes/shop_get";
 import lobbyHandler from "./sockets/lobby";
 import tetrisHandler from "./sockets/tetris";
 
-let __dirname = path.dirname(new URL(import.meta.url).pathname);
+var __dirname = path.dirname(new URL(import.meta.url).pathname);
 if(process.platform == "win32") {
   __dirname = __dirname.substr(1)
 }
-console.log(__dirname)
+
 import Skin from "./schemas/Skin";
 import Session from "./schemas/Session";
 
@@ -44,7 +44,7 @@ db.once('open', async(err)=> {
       
       if(!exists){
         
-        create(skin)
+        await Skin.create(skin)
       }
     }
 })
