@@ -3,8 +3,12 @@ import Mino from "./mino.mjs"
 
 export default class Tetris {
     constructor(pieces, wallkick_data) {
-        this.lock_delay = 400
+        this.lock_delay_default = 1500
+        this.current_lock_delay = this.lock_delay_default
+        this.last_time_diff = 0
+        this.lock_delay_updated = false
         this.last_try_lock = Infinity
+        this.drop_speed = 1500
         this.pieces = pieces
         this.wallkick_data = wallkick_data || {'default': [[0, 0]]}
         this.width = 10
@@ -49,8 +53,19 @@ export default class Tetris {
         this.time = Date.now()
         if(this.active_mino instanceof Mino) {
             if(this.time - this.active_mino.last_drop_tick > 
-                (input.soft_dropping ? 10 : 1500)) {
+                (input.soft_dropping ? 10 : this.drop_speed)) {
                 this.tick_down()
+            }
+            if(!this.move_mino(this.active_mino, 0, 1, false))
+            {
+                this.check_lock()
+            }else {
+                if(!this.lock_delay_updated) {
+                    console.log('diff ' + this.last_time_diff)
+                    this.current_lock_delay -= this.last_time_diff
+                    this.lock_delay_updated = true
+                }
+                this.last_try_lock = Infinity
             }
         }
         else {
@@ -108,27 +123,51 @@ export default class Tetris {
             ;
     }
     
-    move_mino(mino, x, y) {
+    move_mino(mino, x, y, move_if_possible  = true) {
         mino.x += x
         mino.y += y
         if(this.mino_collides(mino)) {
             this.move_mino(mino, -x, -y)
             return false
         }
+        if(!move_if_possible) 
+            this.move_mino(mino, -x, -y)
         return true
+    }
+
+    check_lock(ignore_lock_delay = false) {
+        if(this.last_try_lock == Infinity) {
+            this.last_try_lock = Date.now()
+            console.log('coll')
+        }
+        this.last_time_diff = this.time - this.last_try_lock
+        this.lock_delay_updated = false
+        console.log('inside diff' + this.last_time_diff);
+        if(this.last_time_diff >= this.current_lock_delay || ignore_lock_delay) {
+            this.lock_mino()
+            this.spawn_mino()
+            this.last_try_lock = Infinity
+            this.current_lock_delay = this.lock_delay_default
+            this.last_time_diff = 0
+            this.lock_delay_updated = true
+        }
+        console.log('Curr lock' + this.current_lock_delay)
     }
 
     tick_down(spawn = true, mino = this.active_mino, ignore_lock_delay = false) {
         this.time = Date.now()
         if(!this.move_mino(mino, 0, 1)) {
             if(spawn) {
-                if(this.time - this.last_try_lock > 3000 || ignore_lock_delay) {
-                    this.lock_mino()
-                    this.spawn_mino()
-                    this.last_try_lock = Infinity
-                }
+               this.check_lock(ignore_lock_delay)
             }
             return false
+        }else {
+            if(!this.lock_delay_updated) {
+                console.log('diff ' + this.last_time_diff)
+                this.current_lock_delay -= this.last_time_diff
+                this.lock_delay_updated = true
+            }
+            this.last_try_lock = Infinity
         }
         mino.last_drop_tick = Date.now()
         return true
@@ -201,27 +240,22 @@ export default class Tetris {
         this.active_mino.rotate(old_state)
     }
     rotate_cw() {
-        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation + 1)
     }
 
     rotate_ccw() {
-        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation - 1)
     }
 
     rotate_180() {
-        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation + 2)
     }
     
     move_left() {
-        this.last_try_lock = Date.now()
         return this.move_mino(this.active_mino, -1, 0)
     }
 
     move_right() {
-        this.last_try_lock = Date.now()
         return this.move_mino(this.active_mino, 1, 0)
     }
 
