@@ -11,6 +11,7 @@ block content
     each skin in user.skins
       .acc-skin
         | #{skin.name}
+        img(src="textures/"+skin.imgPath alt=skin.name height="42" width="42") 
         if(user.equippedSkin.name === skin.name)
           button(type="button" onclick="equipSkin(\"" + skin.name + "\")" id=skin.name disabled) equipped
         else

@@ -427,10 +427,18 @@ textarea.input100 {
 
 .shop-item, .shop-skin {
   float: left;
-  width: 200px;
-  height: 200px;
+  /* width: 200px;
+  height: 200px; */
   border:1px solid black;
   margin: 10px 15px;
+  background-color: #57b846;
+  text-align: center;
+  overflow: auto;
+}
+
+.shop-item img, .shop-skin img {
+  display: block;
+  margin: auto;
 }
 
 

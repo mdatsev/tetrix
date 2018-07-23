@@ -37,6 +37,8 @@ block append content
             h1 Skins
             each skin in skins
                 .shop-skin
+                    h2 #{skin.name}
+                    img(src="textures/"+skin.imgPath alt=skin.name)
                     a(href="javascript:void(0)" onclick="buySkin(\"" + skin.name + "\")")
                         if(skin.tBucks)
                             | #{skin.tBucks} T-Bucks
