@@ -47,7 +47,7 @@ db.once('open', async(err)=> {
       
       if(!exists){
         
-        create(skin)
+        await Skin.create(skin)
       }
     }
 })
