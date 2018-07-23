@@ -1,10 +1,10 @@
 // @ts-check
 export default class Mino {
     constructor(rotations, x, y, meta) {
-        this.rotations = rotations
-        this.x = x
-        this.y = y
-        this.current_rotation = 0
+        this.rotations = rotations //trqq
+        this.x = x //t
+        this.y = y //t
+        this.current_rotation = 0 //t
         this.meta = meta || {}
         this.last_drop_tick = Date.now()
     }
@@ -46,9 +46,19 @@ export default class Mino {
         }
     }
 
+    serialize() {
+        return {
+            letter: this.meta.letter,
+            x: this.x,
+            y: this.y,
+            current_rotation: this.current_rotation
+        }
+    }
+
     static from(obj) {
         if(!obj) return obj
         let ret = new Mino(obj.rotations, obj.x, obj.y, obj.meta)
+        ret.current_rotation = obj.current_rotation
         return Object.assign(ret, obj);
     }
 }

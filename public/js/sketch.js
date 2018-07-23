@@ -289,6 +289,7 @@ function createTetris(parent){
             canvas.parent(parent)
             canvas.parent('sketch-holder')
             socket.on('sync', function (data) {
+                //console.log(data)
                 tetris.deserialize(data)
             });
         }
@@ -298,7 +299,7 @@ function createTetris(parent){
             if(!tetris.dead && !paused) {
                 let inputs = kb_manager.get_inputs()
                 socket.emit('inputs', inputs);
-                
+                //console.log(tetris.serialize())
                 // tetris.update(inputs)
                 renderer.render(tetris)
                 renderer.render_queue(tetris, SRS_tiles)
