@@ -237,7 +237,7 @@ window.addEventListener('keydown', (e)=>{
 window.addEventListener('keyup', (e)=>{
     kb_manager.keyReleased(e.keyCode)
 })
-function createTetris(parent,debug){
+function createTetris(parent){
     return new p5(( /** @type {p5} */ p) => {
         let SRS
         let SRS_tiles = {}
@@ -273,8 +273,9 @@ function createTetris(parent,debug){
                     })
             }
             tetris = new Tetris(SRS_tiles, SRS_wallkick)
-
+            
             const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
+            
             canvas.parent(parent)
         }
         
@@ -283,9 +284,7 @@ function createTetris(parent,debug){
             {
                 let inputs = kb_manager.get_inputs()
                 socket.emit('inputs', inputs);
-                if(debug){
-                    console.log(inputs)
-                }
+                
                 tetris.update(inputs)
                 renderer.render(tetris)
                 renderer.render_queue(tetris, SRS_tiles)
@@ -299,5 +298,5 @@ function createTetris(parent,debug){
         }
     })    
 }
-var a = createTetris('sketch-holder', false)
-var b = createTetris('sketch-holder1', true)
+var a = createTetris('sketch-holder')
+var b = createTetris('sketch-holder1')
