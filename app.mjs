@@ -11,9 +11,11 @@ import shopGetRouter from "./routes/shop_get";
 import lobbyHandler from "./sockets/lobby";
 import tetrisHandler from "./sockets/tetris";
 
-
-const __dirname = path.dirname(new URL(import.meta.url).pathname).substr(1);
-
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+if(process.platform == "win32") {
+  __dirname = __dirname.substr(1)
+}
+console.log(__dirname)
 import Lobby from "./schemas/Lobby";
 import User from "./schemas/User";
 import Item from "./schemas/Item";
