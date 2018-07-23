@@ -1,6 +1,6 @@
-var express = require('express');
+import express from "express";
 var router = express.Router();
-const Session = require('../schemas/Session')
+import Session from "../schemas/Session";
 
 router.use((req, res, next)=> {
   Session.findOne({token: req.cookies.sessionToken}).then((ses)=>{
@@ -39,4 +39,4 @@ router.get('/logout',async(req, res)=> {
   return res.redirect('/')
 });
 
-module.exports = router;
+export default router;

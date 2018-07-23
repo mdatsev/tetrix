@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+import mongoose from "mongoose";
 var Schema = mongoose.Schema;
 var skinSchema = new Schema({
     name: String,
@@ -9,4 +9,4 @@ var skinSchema = new Schema({
 });
 let Skin = mongoose.model("Skin", skinSchema)
 
-module.exports = Skin
+export default Skin;

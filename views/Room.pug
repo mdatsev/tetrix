@@ -9,7 +9,6 @@ script(type="text/javascript" charset="utf-8").
     socketIO.emit("join", {roomID, username})
     socketIO.on('player_join', function (data) {
        $('ul').empty()
-       console.log(data)
        data.forEach(player=>{
            $('ul').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
        })

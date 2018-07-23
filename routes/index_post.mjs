@@ -1,9 +1,10 @@
-var express = require('express');
+import express from "express";
 var router = express.Router();
-var bcrypt = require('bcrypt');
-const User = require('../schemas/User')
-const Session = require('../schemas/Session')
-const Crypto =  require('crypto')
+import bcrypt from "bcrypt";
+import User from "../schemas/User";
+import Session from "../schemas/Session";
+import Skin from "../schemas/Skin";
+import crypto from "crypto";
 const saltRounds = 10
 
 router.post('/login', async(req, res, next)=> {
@@ -11,16 +12,18 @@ router.post('/login', async(req, res, next)=> {
     if(user){
         let authenticated = await bcrypt.compare(req.body.password,user.password)
         if(authenticated){
-            let token = Crypto.randomBytes(48).toString("hex")
+            let token = crypto.randomBytes(48).toString("hex")
             Session.create({username:req.body.username, token:token})
             res.cookie('sessionToken',  token)
-            return res.redirect('/game')
+            return res.redirect('/menu')
         }
     }
     res.cookie('error', 'Incorrect username or password!')
     return res.redirect('/login')
 });
-const Skin = require('../schemas/Skin')
+router.get('/menu', (req,res)=>{
+    res.render('menu')
+})
 router.post('/register',async(req, res, next)=> {
     let user = await User.findOne({username:req.body.username}).exec()
     if(!user) {
@@ -32,4 +35,4 @@ router.post('/register',async(req, res, next)=> {
     res.cookie('error', 'This user already exists!')
     return res.redirect('/register')
 });
-module.exports = router;
+export default router;

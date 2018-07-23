@@ -1,11 +1,9 @@
 // @ts-check
-import Mino from "./mino.js"
+import Mino from "./mino.mjs"
+
 export default class Tetris {
     constructor(pieces, wallkick_data) {
-        this.lock_delay_default = 3000
-        this.current_lock_delay = this.lock_delay_default
-        this.last_time_diff = 0
-        this.lock_delay_updated = false
+        this.lock_delay = 400
         this.last_try_lock = Infinity
         this.pieces = pieces
         this.wallkick_data = wallkick_data || {'default': [[0, 0]]}
@@ -18,13 +16,8 @@ export default class Tetris {
         this.fallen_minos = []
         this.minos_bag = []
         this.dead = false
-        this.right_pressed_time = Infinity
-        this.left_pressed_time = Infinity
         this.dasing_left = false
         this.dasing_right = false
-        this.input_priorities = []
-        this.moved_left = true
-        this.moved_right = true
     }
 
     spawn_mino() {
@@ -32,9 +25,10 @@ export default class Tetris {
         if(this.minos_bag.length <= 5) {
             this.generate_bag();
         }
+        console.log(Date.now())
         const letter = this.minos_bag.shift();
         const srs_mino = [...this.pieces[letter]]
-        console.log(srs_mino.length)
+        
         this.active_mino = new Mino(srs_mino, Math.floor((this.width - 4) / 2), 0, {letter})
         
         if(this.mino_collides())
@@ -46,57 +40,54 @@ export default class Tetris {
         this.minos_bag.push(...shuffle(letters));
         console.log("Added to bag");
     }
-
+    
     lock_mino() {
         this.fallen_minos.push(this.active_mino);
     }
-
-    update() {
-        this.time = performance.now()
-        if(this.time - this.right_pressed_time > 119) {
-            if(!this.input_priorities.includes('right_das'))
-                this.input_priorities.push('right_das')
-        }
-        if(this.time - this.left_pressed_time > 119) {
-            if(!this.input_priorities.includes('left_das'))
-                this.input_priorities.push('left_das')
-        }
-        for(const input of this.input_priorities) {
-            switch(input) {
-                case 'left':
-                    if(this.moved_left) break;
-                    this.move_left()
-                    this.moved_left = true
-                    break;
-                case 'right':
-                    if(this.moved_right) break;
-                    this.move_right()
-                    this.moved_right = true
-                    break;
-                case 'left_das':
-                    while(this.move_left())
-                        ;
-                    this.moved_right = false
-                    break;
-                case 'right_das':
-                    while(this.move_right())
-                        ;
-                    this.moved_left = false
-                    break;
-            }
-        }
-        
+    
+    update(input) {
+        this.time = Date.now()
         if(this.active_mino instanceof Mino) {
-            if(this.time - this.active_mino.last_drop_tick > (this.soft_dropping ? 10 : 1000)) {
+            if(this.time - this.active_mino.last_drop_tick > 
+                (input.soft_dropping ? 10 : 1500)) {
                 this.tick_down()
             }
         }
         else {
             this.spawn_mino()
         }
+        switch(input.move) {
+            case 'right_das':
+                this.das_right()
+                break
+            case 'left_das':
+                this.das_left()
+                break
+            case 'right_das-1':
+                this.das_right()
+            case 'left':
+                this.move_left()
+                break
+            case 'left_das-1':
+                this.das_right
+            case 'right':
+                this.move_right()
+                break
+        }
+
         this.check_clear()
     }
 
+    das_left() {
+        while(this.move_left())
+            ;
+    }
+    
+    das_right() {
+        while(this.move_right())
+            ;
+    }
+    
     move_mino(mino, x, y) {
         mino.x += x
         mino.y += y
@@ -108,37 +99,18 @@ export default class Tetris {
     }
 
     tick_down(spawn = true, mino = this.active_mino, ignore_lock_delay = false) {
-        this.time = performance.now()
+        this.time = Date.now()
         if(!this.move_mino(mino, 0, 1)) {
             if(spawn) {
-                if(this.last_try_lock == Infinity) {
-                    this.last_try_lock = performance.now()
-                    console.log('coll')
-                }
-                this.last_time_diff = this.time - this.last_try_lock
-                this.lock_delay_updated = false
-                console.log('inside diff' + this.last_time_diff);
-                if(this.last_time_diff >= this.current_lock_delay || ignore_lock_delay) {
+                if(this.time - this.last_try_lock > 3000 || ignore_lock_delay) {
                     this.lock_mino()
                     this.spawn_mino()
                     this.last_try_lock = Infinity
-                    this.current_lock_delay = this.lock_delay_default
-                    this.last_time_diff = 0
-                    this.lock_delay_updated = true
                 }
-                console.log('Curr lock' + this.current_lock_delay)
             }
             return false
-        }else {
-            if(!this.lock_delay_updated) {
-                console.log('diff ' + this.last_time_diff)
-                this.current_lock_delay -= this.last_time_diff
-                this.lock_delay_updated = true
-            }
-            this.last_try_lock = Infinity
         }
-
-        mino.last_drop_tick = performance.now()
+        mino.last_drop_tick = Date.now()
         return true
     }
 
@@ -190,7 +162,7 @@ export default class Tetris {
     rotate(state) {
         let old_state = this.active_mino.current_rotation
         if(state > this.active_mino.rotations.length - 1)
-            state = state % this.active_mino.rotations.length;
+            state %= this.active_mino.rotations.length
         if(state < 0)
             state = this.active_mino.rotations.length - 1
         this.active_mino.rotate(state)
@@ -209,57 +181,28 @@ export default class Tetris {
         this.active_mino.rotate(old_state)
     }
     rotate_cw() {
+        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation + 1)
     }
 
     rotate_ccw() {
+        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation - 1)
     }
 
     rotate_180() {
+        this.last_try_lock = Date.now()
         this.rotate(this.active_mino.current_rotation + 2)
     }
     
     move_left() {
+        this.last_try_lock = Date.now()
         return this.move_mino(this.active_mino, -1, 0)
     }
 
     move_right() {
+        this.last_try_lock = Date.now()
         return this.move_mino(this.active_mino, 1, 0)
-    }
-
-    leftPressed() {
-        this.moved_left = false
-        this.input_priorities.push('left')
-        this.left_pressed_time = performance.now()
-    }
-
-    leftReleased() {
-        this.input_priorities = this.input_priorities.filter(e => e != 'left_das')
-        this.input_priorities = this.input_priorities.filter(e => e != 'left')
-        this.dasing_left = false
-        this.left_pressed_time = Infinity
-    }
-
-    rightPressed() {
-        this.moved_right = false
-        this.input_priorities.push('right')
-        this.right_pressed_time = performance.now()
-    }
-    
-    rightReleased() {
-        this.input_priorities = this.input_priorities.filter(e => e != 'right_das')
-        this.input_priorities = this.input_priorities.filter(e => e != 'right')
-        this.dasing_right = false
-        this.right_pressed_time = Infinity
-    }
-
-    softDropPressed() {
-        this.soft_dropping = true
-    }
-
-    softDropReleased() {
-        this.soft_dropping = false
     }
 
     hard_drop() {
@@ -271,13 +214,13 @@ export default class Tetris {
             if(this.holded_mino == null) {
                 this.holded_mino = this.active_mino.clone();
                 this.active_mino = null;
-            }else {
+            } else {
                 this.holded_mino.x = Math.floor((this.width - 4) / 2);
                 this.holded_mino.y = 0;
                 let tmp_mino = this.holded_mino;
                 this.holded_mino = this.active_mino;
                 this.active_mino = tmp_mino;
-                this.active_mino.last_drop_tick = performance.now();
+                this.active_mino.last_drop_tick = Date.now();
             }
             this.can_hold = false;
         }

@@ -1,7 +1,7 @@
 // @ts-check
 /// <reference path="../vendor/p5.d.ts" />
-import Mino from "/common/mino.js"
-import Tetris from "/common/tetris.js"
+import Mino from "/common/mino.mjs"
+import Tetris from "/common/tetris.mjs"
 
 new p5(( /** @type {p5} */ p) => {
     let default_skin, ghost_skin
@@ -94,47 +94,132 @@ new p5(( /** @type {p5} */ p) => {
                 'PAUSE':      [27, 112],        // ESC, F1
         
             }
+            this.inputs = []
+            this.right_pressed_time = Infinity
+            this.left_pressed_time = Infinity
+            this.dasing_left = false
+            this.dasing_right = false
+            this.moved_left = true
+            this.moved_right = true
         }
+        
         keyPressed(keyCode) {
+            const isKeyFor = action => this.keybinds[action].includes(keyCode)
             switch(true) {
-                case this.keybinds['MOVE_LEFT'].includes(keyCode):
-                    tetris.leftPressed()
+                case isKeyFor('MOVE_LEFT'):
+                    this.leftPressed()
                     break;
-                case this.keybinds['ROTATE_CW'].includes(keyCode):
+                case isKeyFor('ROTATE_CW'):
                     tetris.rotate_cw()
                     break;
-                case this.keybinds['ROTATE_CCW'].includes(keyCode):
+                case isKeyFor('ROTATE_CCW'):
                     tetris.rotate_ccw()
                     break;
-                case this.keybinds['ROTATE_180'].includes(keyCode):
+                case isKeyFor('ROTATE_180'):
                     tetris.rotate_180()
                     break;
-                case this.keybinds['MOVE_RIGHT'].includes(keyCode):
-                    tetris.rightPressed()
+                case isKeyFor('MOVE_RIGHT'):
+                    this.rightPressed()
                     break;
-                case this.keybinds['SOFT_DROP'].includes(keyCode):
-                    tetris.softDropPressed()
+                case isKeyFor('SOFT_DROP'):
+                    this.softDropPressed()
                     break;
-                case this.keybinds['HARD_DROP'].includes(keyCode):
+                case isKeyFor('HARD_DROP'):
                     tetris.hard_drop()
                     break;
-                case this.keybinds['HOLD_MINO'].includes(keyCode):
+                case isKeyFor('HOLD_MINO'):
                     tetris.hold_mino()
-                    
+                    break;
             }
         }
+
         keyReleased(keyCode) {
+            const isKeyFor = action => this.keybinds[action].includes(keyCode)
             switch(true) {
-                case this.keybinds['MOVE_LEFT'].includes(keyCode):
-                    tetris.leftReleased()
+                case isKeyFor('MOVE_LEFT'):
+                    this.leftReleased()
                     break;
-                case this.keybinds['MOVE_RIGHT'].includes(keyCode):
-                    tetris.rightReleased()
+                case isKeyFor('MOVE_RIGHT'):
+                    this.rightReleased()
                     break;
-                case this.keybinds['SOFT_DROP'].includes(keyCode):
-                    tetris.softDropReleased()
+                case isKeyFor('SOFT_DROP'):
+                    this.softDropReleased()
                     break;
             }
+        }
+
+        get_inputs() {
+            this.time = performance.now()
+            if(this.time - this.right_pressed_time > 119) {
+                if(!this.dasing_right)
+                {
+                    this.dasing_right = true
+                    this.inputs.push('right_das')
+                }
+            }
+            if(this.time - this.left_pressed_time > 119) {
+                if(!this.dasing_left)
+                {
+                    this.dasing_left = true
+                    this.inputs.push('left_das')
+                }
+            }
+            // console.log(this.inputs)
+            let move = this.inputs
+                        .reduce((ac, e, i, ar) => 
+                            ar[i-1] == 'left_das' && e == 'right' 
+                            ? [...ac, 'left_das-1']
+                            : ar[i-1] == 'right_das' && e == 'left' 
+                            ? [...ac, 'right_das-1']
+                            : [...ac, e], [])
+                            [this.inputs.length - 1]
+            if((move == 'left' && this.moved_left) || (move == 'right' && this.moved_right))
+                move = ''
+            else if(move == 'left' || move == 'right_das-1')
+                this.moved_left = true
+            else if(move == 'right' || move == 'left_das-1')
+                this.moved_right = true
+            return {
+                move,
+                soft_dropping: this.soft_dropping
+            }
+        }
+
+        update_inputs() {
+
+        }
+
+
+        leftPressed() {
+            this.moved_left = false
+            this.inputs.push('left')
+            this.left_pressed_time = performance.now()
+        }
+
+        leftReleased() {
+            this.inputs = this.inputs.filter(e => !e.includes('left'))
+            this.dasing_left = false
+            this.left_pressed_time = Infinity
+        }
+
+        rightPressed() {
+            this.moved_right = false
+            this.inputs.push('right')
+            this.right_pressed_time = performance.now()
+        }
+        
+        rightReleased() {
+            this.inputs = this.inputs.filter(e => !e.includes('right'))
+            this.dasing_right = false
+            this.right_pressed_time = Infinity
+        }
+
+        softDropPressed() {
+            this.soft_dropping = true
+        }
+    
+        softDropReleased() {
+            this.soft_dropping = false
         }
     }
     
@@ -146,6 +231,7 @@ new p5(( /** @type {p5} */ p) => {
     let renderer = new TetrisRenderer()
     let kb_manager = new KeyboardManager()
     let paused = false
+    let socket
 
     p.preload = () => {
         SRS = p.loadJSON('/data/SRS_rotations.json')
@@ -158,6 +244,7 @@ new p5(( /** @type {p5} */ p) => {
     }
 
     p.setup = () => {
+        socket = io.connect('http://' + document.domain + ':' + location.port);
         tetris = new Tetris(SRS_tiles, SRS_wallkick)
         for (const mino in SRS) {
             SRS_tiles[mino] = SRS[mino]
@@ -179,7 +266,9 @@ new p5(( /** @type {p5} */ p) => {
     p.draw = () => {
         if(!tetris.dead)
         {
-            tetris.update()
+            let inputs = kb_manager.get_inputs()
+            socket.emit('inputs', inputs);
+            tetris.update(inputs)
             renderer.render(tetris)
             renderer.render_queue()
             renderer.render_holded()
