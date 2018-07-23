@@ -110,13 +110,13 @@ new p5(( /** @type {p5} */ p) => {
                     this.leftPressed()
                     break;
                 case isKeyFor('ROTATE_CW'):
-                    tetris.rotate_cw()
+                    this.rotation = 'cw'
                     break;
                 case isKeyFor('ROTATE_CCW'):
-                    tetris.rotate_ccw()
+                    this.rotation = 'ccw'
                     break;
                 case isKeyFor('ROTATE_180'):
-                    tetris.rotate_180()
+                    this.rotation = '180'
                     break;
                 case isKeyFor('MOVE_RIGHT'):
                     this.rightPressed()
@@ -125,10 +125,10 @@ new p5(( /** @type {p5} */ p) => {
                     this.softDropPressed()
                     break;
                 case isKeyFor('HARD_DROP'):
-                    tetris.hard_drop()
+                    this.hard_drop = true
                     break;
                 case isKeyFor('HOLD_MINO'):
-                    tetris.hold_mino()
+                    this.hold = true
                     break;
             }
         }
@@ -179,10 +179,18 @@ new p5(( /** @type {p5} */ p) => {
                 this.moved_left = true
             else if(move == 'right' || move == 'left_das-1')
                 this.moved_right = true
-            return {
+
+            let inputs = {
                 move,
-                soft_dropping: this.soft_dropping
+                soft_dropping: this.soft_dropping,
+                rotation: this.rotation,
+                hard_drop: this.hard_drop,
+                hold: this.hold
             }
+            this.rotation = ''
+            this.hard_drop = this.hold = false
+
+            return inputs
         }
 
         update_inputs() {
