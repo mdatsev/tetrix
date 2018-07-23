@@ -9,6 +9,7 @@ export default class TetrisRenderer {
         this.mino_renderer = new MinoRenderer({tile_size: this.tile_size, renderer:this.renderer, default_skin:default_skin, ghost_skin:ghost_skin})
     }
     render(tetris) {
+        console.log(this.mino_renderer)
         this.renderer.translate(6 * this.tile_size, 0)
         this.renderer.background(0)
         for (const mino of tetris.fallen_minos) {

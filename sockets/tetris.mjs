@@ -1,7 +1,7 @@
 import Tetris from "../common/tetris"
 import fs from "fs"
-export default function tetrisHandler(io){
-    io.on('connection', (socket)=>{
+export default function tetrisMaker(){
+    
         let SRS = JSON.parse(fs.readFileSync('./public/data/SRS_rotations.json').toString())
         let SRS_wallkick = JSON.parse(fs.readFileSync('./public/data/SRS_wallkicks.json').toString())
         let SRS_tiles = {}
@@ -19,9 +19,6 @@ export default function tetrisHandler(io){
                 })
         }
         let tetris = new Tetris(SRS_tiles, SRS_wallkick)
-        socket.on('inputs', (data)=>{
-          socket.emit('sync', tetris.serialize())
-          tetris.update(data)
-        })
-    })
+        return tetris
+    
 }

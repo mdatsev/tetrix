@@ -19,6 +19,13 @@ router.get('/create', (req,res)=>{
   res.render('lobby_create')
 })
 
+router.post('/start/:id', async(req,res)=>{
+  if(!req.username) return res.redirect('/login')
+  let lobby = await Lobby.findOne({id:req.params.id})
+  console.log(lobby)
+  res.render('game')
+})
+
 router.post('/create', async(req,res)=>{
   if(!req.username) return res.redirect('/login')
   let cur_user = await User.findOne({username:req.username}).exec()
@@ -29,7 +36,7 @@ router.post('/create', async(req,res)=>{
 })
 router.get('/room/:id', (req,res)=>{
   if(!req.username) return res.redirect('/login')
-  res.render('Room',{players:[], username:req.username})
+  res.render('Room',{players:[], username:req.username, id:req.params.id})
 })
 
 router.get('/', function(req, res) {

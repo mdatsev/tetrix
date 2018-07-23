@@ -4,6 +4,7 @@ import Mino from "/common/mino.mjs"
 import Tetris from "/common/tetris.mjs"
 import KeyboardManager from "/js/keyboard_manager.js"
 import TetrisRenderer from "/js/tetris_renderer.js"
+
 let default_skin, ghost_skin
 
 let kb_manager = new KeyboardManager()
@@ -14,7 +15,7 @@ window.addEventListener('keydown', (e)=>{
 window.addEventListener('keyup', (e)=>{
     kb_manager.keyReleased(e.keyCode)
 })
-function createTetris(parent){
+export default function createTetris(parent){
     return new p5(( /** @type {p5} */ p) => {
         let SRS
         let SRS_tiles = {}
@@ -30,13 +31,14 @@ function createTetris(parent){
             jQuery.ajaxSetup({async:false})
             let skinPath = $.get('/account/skin').responseJSON.skinPath
             jQuery.ajaxSetup({async:true})
-            default_skin = p.loadImage("textures/" + skinPath)
-            ghost_skin = p.loadImage("textures/ghost.png")
+            default_skin = p.loadImage("/textures/" + skinPath)
+            ghost_skin = p.loadImage("/textures/ghost.png")
             renderer = new TetrisRenderer(p, 10,5,default_skin,ghost_skin)
         }
     
         p.setup = () => {
-            socket = io.connect('http://' + document.domain + ':' + location.port);
+            socket = io("/game/room");
+
             for (const mino in SRS) {
                 SRS_tiles[mino] = SRS[mino]
                     .map(rotation => {
@@ -55,8 +57,9 @@ function createTetris(parent){
             const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
             
             canvas.parent(parent)
-            canvas.parent('sketch-holder')
+            
             socket.on('sync', function (data) {
+                console.log(data)
                 tetris.deserialize(data)
             });
         }
@@ -78,5 +81,3 @@ function createTetris(parent){
         }
     })    
 }
-var a = createTetris('sketch-holder')
-var b = createTetris('sketch-holder1')
