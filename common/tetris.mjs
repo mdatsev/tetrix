@@ -69,7 +69,7 @@ export default class Tetris {
                 this.move_left()
                 break
             case 'left_das-1':
-                this.das_right
+                this.das_left()
             case 'right':
                 this.move_right()
                 break
