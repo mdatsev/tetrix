@@ -97,6 +97,7 @@ new p5(( /** @type {p5} */ p) => {
             this.inputs = []
             this.right_pressed_time = Infinity
             this.left_pressed_time = Infinity
+            this.paused = false
             this.dasing_left = false
             this.dasing_right = false
             this.moved_left = true
@@ -105,81 +106,87 @@ new p5(( /** @type {p5} */ p) => {
         
         keyPressed(keyCode) {
             const isKeyFor = action => this.keybinds[action].includes(keyCode)
-            switch(true) {
-                case isKeyFor('MOVE_LEFT'):
-                    this.leftPressed()
-                    break;
-                case isKeyFor('ROTATE_CW'):
-                    this.rotation = 'cw'
-                    break;
-                case isKeyFor('ROTATE_CCW'):
-                    this.rotation = 'ccw'
-                    break;
-                case isKeyFor('ROTATE_180'):
-                    this.rotation = '180'
-                    break;
-                case isKeyFor('MOVE_RIGHT'):
-                    this.rightPressed()
-                    break;
-                case isKeyFor('SOFT_DROP'):
-                    this.softDropPressed()
-                    break;
-                case isKeyFor('HARD_DROP'):
-                    this.hard_drop = true
-                    break;
-                case isKeyFor('HOLD_MINO'):
-                    this.hold = true
-                    break;
+            if(isKeyFor('PAUSE')) {
+                this.paused = !this.paused
+                console.log(paused)
             }
+            if(!paused)
+                switch(true) {
+                    case isKeyFor('MOVE_LEFT'):
+                        this.leftPressed()
+                        break;
+                    case isKeyFor('ROTATE_CW'):
+                        this.rotation = 'cw'
+                        break;
+                    case isKeyFor('ROTATE_CCW'):
+                        this.rotation = 'ccw'
+                        break;
+                    case isKeyFor('ROTATE_180'):
+                        this.rotation = '180'
+                        break;
+                    case isKeyFor('MOVE_RIGHT'):
+                        this.rightPressed()
+                        break;
+                    case isKeyFor('SOFT_DROP'):
+                        this.softDropPressed()
+                        break;
+                    case isKeyFor('HARD_DROP'):
+                        this.hard_drop = true
+                        break;
+                    case isKeyFor('HOLD_MINO'):
+                        this.hold = true
+                        break;
+                }
         }
 
         keyReleased(keyCode) {
             const isKeyFor = action => this.keybinds[action].includes(keyCode)
-            switch(true) {
-                case isKeyFor('MOVE_LEFT'):
-                    this.leftReleased()
-                    break;
-                case isKeyFor('MOVE_RIGHT'):
-                    this.rightReleased()
-                    break;
-                case isKeyFor('SOFT_DROP'):
-                    this.softDropReleased()
-                    break;
-            }
+            if(!paused)
+                switch(true) {
+                    case isKeyFor('MOVE_LEFT'):
+                        this.leftReleased()
+                        break;
+                    case isKeyFor('MOVE_RIGHT'):
+                        this.rightReleased()
+                        break;
+                    case isKeyFor('SOFT_DROP'):
+                        this.softDropReleased()
+                        break;
+                }
         }
 
         get_inputs() {
             this.time = performance.now()
-            if(this.time - this.right_pressed_time > 119) {
-                if(!this.dasing_right)
-                {
-                    this.dasing_right = true
-                    this.inputs.push('right_das')
+                if(this.time - this.right_pressed_time > 119) {
+                    if(!this.dasing_right)
+                    {
+                        this.dasing_right = true
+                        this.inputs.push('right_das')
+                    }
                 }
-            }
-            if(this.time - this.left_pressed_time > 119) {
-                if(!this.dasing_left)
-                {
-                    this.dasing_left = true
-                    this.inputs.push('left_das')
+                if(this.time - this.left_pressed_time > 119) {
+                    if(!this.dasing_left)
+                    {
+                        this.dasing_left = true
+                        this.inputs.push('left_das')
+                    }
                 }
-            }
-            // console.log(this.inputs)
+                // console.log(this.inputs)
+            
             let move = this.inputs
-                        .reduce((ac, e, i, ar) => 
-                            ar[i-1] == 'left_das' && e == 'right' 
-                            ? [...ac, 'left_das-1']
-                            : ar[i-1] == 'right_das' && e == 'left' 
-                            ? [...ac, 'right_das-1']
-                            : [...ac, e], [])
-                            [this.inputs.length - 1]
-            if((move == 'left' && this.moved_left) || (move == 'right' && this.moved_right))
-                move = ''
-            else if(move == 'left' || move == 'right_das-1')
-                this.moved_left = true
-            else if(move == 'right' || move == 'left_das-1')
-                this.moved_right = true
-
+                            .reduce((ac, e, i, ar) => 
+                                ar[i-1] == 'left_das' && e == 'right' 
+                                ? [...ac, 'left_das-1']
+                                : ar[i-1] == 'right_das' && e == 'left' 
+                                ? [...ac, 'right_das-1']
+                                : [...ac, e], [])
+                                [this.inputs.length - 1]
+                if((move == 'left' && this.moved_left) || (move == 'right' && this.moved_right))
+                    move = ''
+                else if(move == 'left' || move == 'right_das-1')
+                    this.moved_left = true
+                else if(move == 'right' || move == 'left_das-1')
+                    this.moved_right = true
             let inputs = {
                 move,
                 soft_dropping: this.soft_dropping,
@@ -191,6 +198,10 @@ new p5(( /** @type {p5} */ p) => {
             this.hard_drop = this.hold = false
 
             return inputs
+        }
+
+        is_paused() {
+            return this.paused
         }
 
         update_inputs() {
@@ -272,7 +283,8 @@ new p5(( /** @type {p5} */ p) => {
     }
     
     p.draw = () => {
-        if(!tetris.dead)
+        paused = kb_manager.is_paused()
+        if(!tetris.dead && !paused)
         {
             let inputs = kb_manager.get_inputs()
             socket.emit('inputs', inputs);
