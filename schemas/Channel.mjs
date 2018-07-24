@@ -12,6 +12,8 @@ channelSchema.method('test', () => {
 
 })
 
+channe
+
 const Channel =  mongoose.model("Channel", channelSchema)
 
 export default Channel;
