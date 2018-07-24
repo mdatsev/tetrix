@@ -25,6 +25,7 @@ export default function createTetris(parent){
         let tetris
         let renderer
         let paused = false
+        let tile_size = 20
         p.preload = () => {
             SRS = p.loadJSON('/data/SRS_rotations.json')
             SRS_wallkick = p.loadJSON('/data/SRS_wallkicks.json')
@@ -33,7 +34,7 @@ export default function createTetris(parent){
             jQuery.ajaxSetup({async:true})
             default_skin = p.loadImage("/textures/" + skinPath)
             ghost_skin = p.loadImage("/textures/ghost.png")
-            renderer = new TetrisRenderer(p, 10,5,default_skin,ghost_skin)
+            renderer = new TetrisRenderer(p, tile_size,5,default_skin,ghost_skin)
         }
     
         p.setup = () => {
@@ -56,12 +57,8 @@ export default function createTetris(parent){
             const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
             canvas.parent(parent)
             socket.on('sync', function (data) {
-                console.log(data)
                 if(data.id == parent){ 
-                    console.log("mine")  
                     tetris.deserialize(data.data)    
-                }else{
-                    console.log("peshos")  
                 }
             });
         }
@@ -69,7 +66,6 @@ export default function createTetris(parent){
         p.draw = () => {
             paused = kb_manager.is_paused()
             if(!tetris.dead && !paused) {
-                // tetris.update(inputs)
                 renderer.render(tetris)
                 renderer.render_queue(tetris, SRS_tiles)
                 renderer.render_holded(tetris)

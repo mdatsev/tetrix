@@ -30,7 +30,7 @@ script(type="module" charset="utf-8").
     });
     socket.on('started', function (data) {
         let tetrises = [];
-        console.log(data)
+        $('#start').remove();
         for(let i = 0;i<data.player_ids.length;i++){
             $('body').append(`<div id=${data.player_ids[i]}></div>`)
             createTetris(data.player_ids[i].toString())
