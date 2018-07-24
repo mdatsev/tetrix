@@ -1,18 +1,34 @@
 script(type="text/javascript" src="../../vendor/socketio.js")
 script(src="../../vendor/jquery-3.3.1.min.js")
 body
-    ul
+    ul#users
+    ul#messages
+    input#message(type="text" name="message" placeholder="Message..." onsubmit="sendMsg();")
+    button(type="button" onclick="sendMsg()") Send
+
 script(type="text/javascript" charset="utf-8").
     var socketIO = io("/game/room");
     let username = "#{username}"
     var roomID = window.location.pathname.split("/").pop(-1);
     socketIO.emit("join", {roomID, username})
     socketIO.on('player_join', function (data) {
-       $('ul').empty()
+       $('#users').empty()
        data.forEach(player=>{
-           $('ul').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
+           $('#users').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
        })
     });
     socketIO.on('player_left', function (data) {
-        $('ul').find(`[data-id=${data}]`).remove()
+        $('#users').find(`[data-id=${data}]`).remove()
     });
+
+    socketIO.on('message', (data) => {
+        $('#messages').append($('<li>').text(data.username + ": " + data.message))
+    })
+
+    function sendMsg(message) {
+        socketIO.emit('message', {
+            username: username,
+            message: $('#message').val()
+        });
+        $('#message').val('');
+    }
