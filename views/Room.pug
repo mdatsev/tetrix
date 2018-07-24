@@ -5,14 +5,15 @@ link(rel="stylesheet" href="/css/canvas.css")
 body
     ul#users
     ul#messages
-    input#message(type="text" name="message" placeholder="Message..." onsubmit="sendMsg();")
-    button(type="button" onclick="sendMsg()") Send
-    ul
-button  Start  
+    input#message(type="text" name="message" placeholder="Message...")
+    button#send-message(type="button" onclick="sendMsg()") Send
+    br
+    button#start  Start  
+    br
 script(type="module" charset="utf-8").
     window.socket = io("/game/room");
     import createTetris from "../js/sketch.js"
-    $('button').on('click', (e)=>{
+    $('#start').on('click', (e)=>{
         socket.emit("start", {roomID, username})
     })
     let username = "#{username}"
@@ -36,13 +37,14 @@ script(type="module" charset="utf-8").
         }
     });
 
-    socketIO.on('message', (data) => {
+    socket.on('message', (data) => {
         $('#messages').append($('<li>').text(data.username + ": " + data.message))
     })
 
+script(type="text/javascript" charset="utf-8").
     function sendMsg(message) {
-        socketIO.emit('message', {
-            username: username,
+        socket.emit('message', {
+            username: "#{username}",
             message: $('#message').val()
         });
         $('#message').val('');

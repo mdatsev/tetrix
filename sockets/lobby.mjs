@@ -20,7 +20,6 @@ export default function lobbyHandler(io){
        manager.to(roomid).emit('player_left',uid);
     })
     socket.on('inputs', async(pkg)=>{
-      console.log(tetrises.map(e=>e.id), player_ids, socket.id)
       let tetris = tetrises.filter(t=>t.id == socket.id)[0].tetris
       tetris.update(pkg.inputs)
       socket.join(roomid);
