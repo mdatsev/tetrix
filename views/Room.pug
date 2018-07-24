@@ -1,34 +1,59 @@
 script(type="text/javascript" src="../../vendor/socketio.js")
 script(src="../../vendor/jquery-3.3.1.min.js")
+script(src="/vendor/p5.min.js")
+link(rel="stylesheet" href="/css/canvas.css")
 body
     ul#users
     ul#messages
-    input#message(type="text" name="message" placeholder="Message..." onsubmit="sendMsg();")
-    button(type="button" onclick="sendMsg()") Send
-
-script(type="text/javascript" charset="utf-8").
-    var socketIO = io("/game/room");
+    input#message(type="text" name="message" placeholder="Message...")
+    button#send-message(type="button" onclick="sendMsg()") Send
+    br
+    button#start  Start  
+    br
+script(type="module" charset="utf-8").
+    window.socket = io("/game/room");
+    import createTetris from "../js/sketch.js"
+    $('#start').on('click', (e)=>{
+        socket.emit("start", {roomID, username})
+    })
     let username = "#{username}"
     var roomID = window.location.pathname.split("/").pop(-1);
-    socketIO.emit("join", {roomID, username})
-    socketIO.on('player_join', function (data) {
+    socket.emit("join", {roomID, username})
+    socket.on('player_join', function (data) {
        $('#users').empty()
        data.forEach(player=>{
            $('#users').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
        })
     });
-    socketIO.on('player_left', function (data) {
+    socket.on('player_left', function (data) {
         $('#users').find(`[data-id=${data}]`).remove()
     });
+    socket.on('started', function (data) {
+        let tetrises = [];
+        console.log(data)
+        for(let i = 0;i<data.player_ids.length;i++){
+            $('body').append(`<div id=${data.player_ids[i]}></div>`)
+            createTetris(data.player_ids[i].toString())
+        }
+    });
 
-    socketIO.on('message', (data) => {
+    socket.on('message', (data) => {
         $('#messages').append($('<li>').text(data.username + ": " + data.message))
     })
 
+script(type="text/javascript" charset="utf-8").
     function sendMsg(message) {
-        socketIO.emit('message', {
-            username: username,
+        socket.emit('message', {
+            username: "#{username}",
             message: $('#message').val()
         });
         $('#message').val('');
     }
+
+//- script(type="text/javascript" charset="utf-8").
+//-     var socketIO = io("/game/room");
+//-     let username = "#{username}"
+//-     var roomID = window.location.pathname.split("/").pop(-1);
+//-     socketIO.emit("join", {roomID, username})
+//-     socketIO.on('player_join', function (data) {
+        //- $('#users').empty()
