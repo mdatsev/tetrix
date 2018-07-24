@@ -10,7 +10,7 @@ let default_skin, ghost_skin
 let kb_manager = new KeyboardManager()
 
 window.addEventListener('keydown', (e)=>{
-        kb_manager.keyPressed(e.keyCode)
+    kb_manager.keyPressed(e.keyCode)
 })
 window.addEventListener('keyup', (e)=>{
     kb_manager.keyReleased(e.keyCode)
@@ -24,7 +24,6 @@ export default function createTetris(parent){
         let renderer
         let paused = false
         let socket
-    
         p.preload = () => {
             SRS = p.loadJSON('/data/SRS_rotations.json')
             SRS_wallkick = p.loadJSON('/data/SRS_wallkicks.json')
@@ -37,7 +36,6 @@ export default function createTetris(parent){
         }
     
         p.setup = () => {
-            socket = io("/game/room");
 
             for (const mino in SRS) {
                 SRS_tiles[mino] = SRS[mino]
@@ -55,12 +53,15 @@ export default function createTetris(parent){
             tetris = new Tetris(SRS_tiles, SRS_wallkick)
             
             const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
-            
             canvas.parent(parent)
-            
-            socket.on('sync', function (data) {
-                console.log(data)
-                tetris.deserialize(data)
+            socket = io('/game/room')
+            socket.on('sync', function (data) { 
+                if(data.id == parent){ 
+                    console.log("mine")  
+                    tetris.deserialize(data.data)    
+                }else{
+                    console.log("peshos")  
+                }
             });
         }
         
@@ -68,7 +69,7 @@ export default function createTetris(parent){
             paused = kb_manager.is_paused()
             if(!tetris.dead && !paused) {
                 let inputs = kb_manager.get_inputs()
-                socket.emit('inputs', inputs);
+                socket.emit('inputs', {inputs:inputs,id:parent});
                 // tetris.update(inputs)
                 renderer.render(tetris)
                 renderer.render_queue(tetris, SRS_tiles)

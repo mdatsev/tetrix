@@ -2,9 +2,9 @@ import Lobby from "../schemas/Lobby";
 import User from "../schemas/User";
 import tetrisMaker from "./tetris.mjs"
 export default function lobbyHandler(io){
-  let tetris
+  let tetrises = []
   io.on('connection', (socket)=>{
-    tetris = tetrisMaker();
+    
   })
   var manager = io.of("/game/room").on('connection', function (socket) {
     let uid;
@@ -19,14 +19,18 @@ export default function lobbyHandler(io){
        manager.to(roomid).emit('player_left',uid);
     })
     socket.on('inputs', async(pkg)=>{
-      tetris.update(pkg)
+      let tetris = tetrises.filter(t=>t.id == pkg.id)[0].tetris
+      tetris.update(pkg.inputs)
       socket.join(roomid);
-      manager.to(roomid).emit('sync', tetris.serialize())
+      manager.to(roomid).emit('sync', {data:tetris.serialize(), id:pkg.id})
     })
     socket.on("start", async(pkg)=>{
         socket.join(pkg.roomID);
-        let lobby = await Lobby.findOne({link:pkg.roomID})
-        manager.to(roomid).emit("started", lobby.players.length)
+        let lobby = await Lobby.findOne({link:pkg.roomID}).populate('players').exec()
+        for(let i=0;i<lobby.players.length;i++){
+           tetrises.push({tetris:tetrisMaker(), id:lobby.players[i].id})
+        }
+        manager.to(roomid).emit("started", {players_lenght:lobby.players.length, players_id: lobby.players.map(u=>u.id)})
     })
     socket.on("join", async(pkg)=>{
         socket.join(pkg.roomID);

@@ -15,13 +15,12 @@ export default class Tetris {
         this.height = 40
         this.visible_height = this.height / 2;
         this.can_hold = false;
-        this.active_mino = null
-        this.holded_mino = null
+        this.active_mino = null //trqq 
+        this.holded_mino = null // meta letter
         this.fallen_minos = []
         this.minos_bag = []
         this.dead = false
-        this.dasing_left = false
-        this.dasing_right = false
+        this.event_queue = []
     }
 
     spawn_mino() {
@@ -125,11 +124,15 @@ export default class Tetris {
         mino.x += x
         mino.y += y
         if(this.mino_collides(mino)) {
-            this.move_mino(mino, -x, -y)
+            mino.x -= x
+            mino.y -= y
             return false
         }
         if(!move_if_possible) 
-            this.move_mino(mino, -x, -y)
+        {
+            mino.x -= x
+            mino.y -= y
+        }
         return true
     }
 
@@ -177,6 +180,7 @@ export default class Tetris {
         {
             if(line.length == this.width)
             {
+                this.event_queue.push('line_clear')
                 for(let mino of this.fallen_minos)
                 {
                     for(const tile of line)
@@ -273,15 +277,26 @@ export default class Tetris {
         }
     }
     serialize() {
-        return JSON.stringify(this)
+        //let fallen_minos = this.fallen_minos.length > 0 ? [] : this.fallen_minos.map(m => m.meta.serialize())
+        return {
+            active_mino: this.active_mino && this.active_mino.serialize(),
+            holded_mino: this.holded_mino && this.holded_mino.meta.letter,
+            minos_bag: this.minos_bag,
+            fallen_minos: this.fallen_minos
+        }
     }
-    deserialize(str) {
-        /** @type {Tetris} */
-        let tetr = JSON.parse(str)
-        tetr.active_mino = Mino.from(tetr.active_mino)
-        tetr.holded_mino = Mino.from(tetr.holded_mino)
-        tetr.fallen_minos = tetr.fallen_minos.map(Mino.from)
-        Object.assign(this, tetr)
+    deserialize(data) {
+        if(data.active_mino) {
+            this.active_mino = new Mino([...this.pieces[data.active_mino.letter]], data.active_mino.x, data.active_mino.y, data.active_mino.letter)
+            this.active_mino.current_rotation = data.active_mino.current_rotation
+        }
+        if(data.holded_mino) {
+            this.holded_mino = new Mino([...this.pieces[data.holded_mino]], 1, 1, data.holded_mino.letter)
+        }
+        //console.log(data)
+        this.minos_bag = data.minos_bag
+        this.fallen_minos = data.fallen_minos.map(m => Mino.from(m))
+        //this.fallen_minos = 
     }
 }
 

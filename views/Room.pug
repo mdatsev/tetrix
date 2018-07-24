@@ -7,7 +7,6 @@ button  Start
 script(type="module" charset="utf-8").
     import createTetris from "../js/sketch.js"
     $('button').on('click', (e)=>{
-        
         socketIO.emit("start", {roomID, username})
     })
     var socketIO = io("/game/room");
@@ -25,10 +24,11 @@ script(type="module" charset="utf-8").
     });
     socketIO.on('started', function (data) {
         let tetrises = [];
-        for(let i = 0;i<data;i++){
-            $('body').append(`<div id=${i}></div>`)
+        console.log(data)
+        for(let i = 0;i<data.players_lenght;i++){
+            $('body').append(`<div id=${data.players_id[i]}></div>`)
         }
-        for(let i = 0;i<data;i++){
-            createTetris(i.toString())
+        for(let i = 0;i<data.players_lenght;i++){
+            createTetris(data.players_id[i].toString())
         }
     });
