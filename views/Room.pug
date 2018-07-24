@@ -3,6 +3,10 @@ script(src="../../vendor/jquery-3.3.1.min.js")
 script(src="/vendor/p5.min.js")
 link(rel="stylesheet" href="/css/canvas.css")
 body
+    ul#users
+    ul#messages
+    input#message(type="text" name="message" placeholder="Message..." onsubmit="sendMsg();")
+    button(type="button" onclick="sendMsg()") Send
     ul
 button  Start  
 script(type="module" charset="utf-8").
@@ -15,13 +19,13 @@ script(type="module" charset="utf-8").
     var roomID = window.location.pathname.split("/").pop(-1);
     socket.emit("join", {roomID, username})
     socket.on('player_join', function (data) {
-       $('ul').empty()
+       $('#users').empty()
        data.forEach(player=>{
-           $('ul').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
+           $('#users').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
        })
     });
     socket.on('player_left', function (data) {
-        $('ul').find(`[data-id=${data}]`).remove()
+        $('#users').find(`[data-id=${data}]`).remove()
     });
     socket.on('started', function (data) {
         let tetrises = [];
@@ -31,3 +35,23 @@ script(type="module" charset="utf-8").
             createTetris(data.player_ids[i].toString())
         }
     });
+
+    socketIO.on('message', (data) => {
+        $('#messages').append($('<li>').text(data.username + ": " + data.message))
+    })
+
+    function sendMsg(message) {
+        socketIO.emit('message', {
+            username: username,
+            message: $('#message').val()
+        });
+        $('#message').val('');
+    }
+
+//- script(type="text/javascript" charset="utf-8").
+//-     var socketIO = io("/game/room");
+//-     let username = "#{username}"
+//-     var roomID = window.location.pathname.split("/").pop(-1);
+//-     socketIO.emit("join", {roomID, username})
+//-     socketIO.on('player_join', function (data) {
+        //- $('#users').empty()

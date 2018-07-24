@@ -55,5 +55,9 @@ export default function lobbyHandler(io){
         
         manager.to(roomid).emit('player_join',lobby.players.map(p=>({username:p.username, id: p.id})));
     })
+
+    socket.on('message', async (data) => {
+      manager.to(roomid).emit('message',data);
+    })
   })
 }
