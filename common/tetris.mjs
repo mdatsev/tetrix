@@ -280,7 +280,7 @@ export default class Tetris {
         //let fallen_minos = this.fallen_minos.length > 0 ? [] : this.fallen_minos.map(m => m.meta.serialize())
         return {
             active_mino: this.active_mino && this.active_mino.serialize(),
-            holded_mino: this.holded_mino && this.holded_mino.serialize(),
+            holded_mino: this.holded_mino && this.holded_mino.meta.letter,
             minos_bag: this.minos_bag,
             fallen_minos: this.fallen_minos
         }
@@ -290,10 +290,10 @@ export default class Tetris {
             this.active_mino = new Mino([...this.pieces[data.active_mino.letter]], data.active_mino.x, data.active_mino.y, data.active_mino.letter)
             this.active_mino.current_rotation = data.active_mino.current_rotation
         }
-        if(data.hold_mino) {
-            this.holded_mino = new Mino([...this.pieces[data.holded_mino.letter]], data.holded_mino.x, data.holded_mino.y, data.holded_mino.letter)
-            this.holded_mino.current_rotation = data.holded_mino.current_rotation
+        if(data.holded_mino) {
+            this.holded_mino = new Mino([...this.pieces[data.holded_mino]], 1, 1, data.holded_mino.letter)
         }
+        //console.log(data)
         this.minos_bag = data.minos_bag
         this.fallen_minos = data.fallen_minos.map(m => Mino.from(m))
         //this.fallen_minos = 
