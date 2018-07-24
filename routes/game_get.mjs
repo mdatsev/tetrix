@@ -43,4 +43,11 @@ router.get('/', function(req, res) {
     if(!req.username) return res.redirect('/login')
     res.render('game')
 });
+
+router.get('/list', async (req, res) => {
+  if(!req.username) return res.redirect('/login')
+  let lobbies = await Lobby.find({});
+  res.render('lobbies', {lobbies})
+});
+
 export default router;

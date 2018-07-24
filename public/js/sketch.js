@@ -7,7 +7,9 @@ import TetrisRenderer from "/js/tetris_renderer.js"
 
 let default_skin, ghost_skin
 
-let kb_manager = new KeyboardManager()
+let kb_manager = new KeyboardManager((inputs) => {
+    socket.emit('inputs', {inputs});
+})
 
 window.addEventListener('keydown', (e)=>{
     kb_manager.keyPressed(e.keyCode)
@@ -23,7 +25,6 @@ export default function createTetris(parent){
         let tetris
         let renderer
         let paused = false
-        let socket
         p.preload = () => {
             SRS = p.loadJSON('/data/SRS_rotations.json')
             SRS_wallkick = p.loadJSON('/data/SRS_wallkicks.json')
@@ -54,8 +55,8 @@ export default function createTetris(parent){
             
             const canvas = p.createCanvas((tetris.width + 12) * renderer.tile_size, tetris.visible_height * renderer.tile_size)
             canvas.parent(parent)
-            socket = io('/game/room')
-            socket.on('sync', function (data) { 
+            socket.on('sync', function (data) {
+                console.log(data)
                 if(data.id == parent){ 
                     console.log("mine")  
                     tetris.deserialize(data.data)    
@@ -68,8 +69,6 @@ export default function createTetris(parent){
         p.draw = () => {
             paused = kb_manager.is_paused()
             if(!tetris.dead && !paused) {
-                let inputs = kb_manager.get_inputs()
-                socket.emit('inputs', {inputs:inputs,id:parent});
                 // tetris.update(inputs)
                 renderer.render(tetris)
                 renderer.render_queue(tetris, SRS_tiles)

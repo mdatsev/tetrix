@@ -1,34 +1,33 @@
 script(type="text/javascript" src="../../vendor/socketio.js")
 script(src="../../vendor/jquery-3.3.1.min.js")
 script(src="/vendor/p5.min.js")
+link(rel="stylesheet" href="/css/canvas.css")
 body
     ul
 button  Start  
 script(type="module" charset="utf-8").
+    window.socket = io("/game/room");
     import createTetris from "../js/sketch.js"
     $('button').on('click', (e)=>{
-        socketIO.emit("start", {roomID, username})
+        socket.emit("start", {roomID, username})
     })
-    var socketIO = io("/game/room");
     let username = "#{username}"
     var roomID = window.location.pathname.split("/").pop(-1);
-    socketIO.emit("join", {roomID, username})
-    socketIO.on('player_join', function (data) {
+    socket.emit("join", {roomID, username})
+    socket.on('player_join', function (data) {
        $('ul').empty()
        data.forEach(player=>{
            $('ul').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
        })
     });
-    socketIO.on('player_left', function (data) {
+    socket.on('player_left', function (data) {
         $('ul').find(`[data-id=${data}]`).remove()
     });
-    socketIO.on('started', function (data) {
+    socket.on('started', function (data) {
         let tetrises = [];
         console.log(data)
-        for(let i = 0;i<data.players_lenght;i++){
-            $('body').append(`<div id=${data.players_id[i]}></div>`)
-        }
-        for(let i = 0;i<data.players_lenght;i++){
-            createTetris(data.players_id[i].toString())
+        for(let i = 0;i<data.player_ids.length;i++){
+            $('body').append(`<div id=${data.player_ids[i]}></div>`)
+            createTetris(data.player_ids[i].toString())
         }
     });
