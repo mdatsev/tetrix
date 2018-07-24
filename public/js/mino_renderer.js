@@ -8,6 +8,7 @@ export default class MinoRenderer {
     }
     render(mino) {
         if(!mino) return
+
         let tiles = mino.get_tiles_on_board()
         const ts = this.tile_size;
         for(const tile of tiles) {
