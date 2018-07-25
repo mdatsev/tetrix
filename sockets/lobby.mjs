@@ -11,13 +11,12 @@ export default function lobbyHandler(io){
     let uid;
     let roomid;
     socket.on("disconnect", async()=>{
-       let lobby = await Lobby.findOneAndUpdate( {link: roomid}, { $pullAll: {players: [uid] }}, {"new":true}  ).exec()
-       
-      if(lobby.players.length == 0){
+      let lobby = await Lobby.findOneAndUpdate( {link: roomid}, { $pullAll: {players: [uid] }}, {"new":true}  ).exec()
+      if(lobby.players.length == 0){  
         await Lobby.deleteOne({link:roomid}).exec()
       }
-       socket.join(roomid);
-       manager.to(roomid).emit('player_left',uid);
+      socket.join(roomid);
+      manager.to(roomid).emit('player_left',uid);
     })
     socket.on('inputs', async(pkg)=>{
       let tetris = tetrises.filter(t=>t.id == socket.id)[0].tetris
@@ -27,7 +26,6 @@ export default function lobbyHandler(io){
     })
     socket.on("start", async(pkg)=>{
         socket.join(pkg.roomID);
-        // let lobby = await Lobby.findOne({link:pkg.roomID}).populate('players').exec()
         for(const id of player_ids[roomid]){
            tetrises.push({tetris:tetrisMaker(), id})
         }

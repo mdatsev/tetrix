@@ -4,21 +4,15 @@ block append head
     style.
       body {padding: 0; margin: 0;}
     script(src="vendor/p5.min.js")
-    //-script(src="vendor/addons/p5.dom.min.js")
-    //-script(src="vendor/addons/p5.sound.min.js")
     link(rel="stylesheet" href="css/main.css")
     link(rel="stylesheet" href="css/canvas.css")
     script(type="text/javascript" src="vendor/socketio.js")
     script(src="vendor/jquery-3.3.1.min.js")
-    //- script(type="text/javascript" charset="utf-8").
-    //-   var socket = io.connect('http://' + document.domain + ':' + location.port);
-    //-   $('document').ready(()=>{
-    //-     $(document).on('keypress', function(e) {
-    //-       socket.emit('keypress', {keyCode: e.keyCode});
-    //-     })
-    //-   })
 
 block append content
     #sketch-holder
-
-    script(src="js/sketch.js" type="module")
+    
+    script(type="module" charset="utf-8").
+        window.socket = io("/game/room");
+        import createTetris from "../js/sketch.js"
+        createTetris("sketch-holder")
