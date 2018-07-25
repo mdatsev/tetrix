@@ -11,10 +11,15 @@ let kb_manager = new KeyboardManager((inputs) => {
     socket.emit('inputs', {inputs});
 })
 
+let keystate = []
+
 window.addEventListener('keydown', (e)=>{
+    if(keystate[e.keyCode]) return
+    keystate[e.keyCode] = true
     kb_manager.keyPressed(e.keyCode)
 })
 window.addEventListener('keyup', (e)=>{
+    keystate[e.keyCode] = false
     kb_manager.keyReleased(e.keyCode)
 })
 export default function createTetris(parent){
@@ -58,12 +63,13 @@ export default function createTetris(parent){
             canvas.parent(parent)
             socket.on('sync', function (data) {
                 if(data.id == parent){ 
-                    tetris.deserialize(data.data)    
+                    tetris.deserialize(data.data)
                 }
             });
         }
         
         p.draw = () => {
+            kb_manager.update_inputs()
             paused = kb_manager.is_paused()
             if(!tetris.dead && !paused) {
                 renderer.render(tetris)
