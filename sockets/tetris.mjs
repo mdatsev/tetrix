@@ -1,6 +1,6 @@
 import Tetris from "../common/tetris"
 import fs from "fs"
-export default function tetrisMaker(){
+export default function tetrisMaker(update_callback){
     
         let SRS = JSON.parse(fs.readFileSync('./public/data/SRS_rotations.json').toString())
         let SRS_wallkick = JSON.parse(fs.readFileSync('./public/data/SRS_wallkicks.json').toString())
@@ -18,7 +18,7 @@ export default function tetrisMaker(){
                     return tiles
                 })
         }
-        let tetris = new Tetris(SRS_tiles, SRS_wallkick)
+        let tetris = new Tetris(SRS_tiles, SRS_wallkick, update_callback)
         return tetris
     
 }
