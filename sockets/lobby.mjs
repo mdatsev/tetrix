@@ -1,7 +1,7 @@
 import Lobby from "../schemas/Lobby";
 import User from "../schemas/User";
 import tetrisMaker from "./tetris.mjs"
-export default function lobbyHandler(io){
+export default function lobbyHandler(io) {
   let tetrises = []
   let player_ids = {}
   io.on('connection', (socket)=>{
@@ -16,8 +16,8 @@ export default function lobbyHandler(io){
       if(lobby.players.length == 0){
         await Lobby.deleteOne({link:roomid}).exec()
       }
-       socket.join(roomid);
-       manager.to(roomid).emit('player_left',uid);
+       socket.join(roomid)
+       manager.to(roomid).emit('player_left',uid)
     })
     socket.on('inputs', async(pkg)=>{
       let tetris = tetrises.filter(t=>t.id == socket.id)[0].tetris
