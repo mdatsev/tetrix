@@ -1,0 +1,17 @@
+script(type="text/javascript" src="../../vendor/socketio.js")
+script(src="../../vendor/jquery-3.3.1.min.js")
+script(src="/vendor/p5.min.js")
+script(src='/js/lobby.js', type='module')
+script(src='/js/chat.js')
+
+link(rel="stylesheet" href="/css/canvas.css")
+body
+    ul#users
+    ul#messages
+    input#message(type="text" name="message" placeholder="Message...")
+    button#send-message(type="button" onclick="sendMsg()") Send
+    br
+    button#start  Start  
+    br
+script(type="text/javascript" charset="utf-8").
+    window.username = "#{username}"

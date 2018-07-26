@@ -2,7 +2,7 @@
 import Mino from "./mino.mjs"
 
 export default class Tetris {
-    constructor(pieces, wallkick_data) {
+    constructor(pieces, wallkick_data, update_callback) {
         this.lock_delay_default = 1500
         this.current_lock_delay = this.lock_delay_default
         this.last_time_diff = 0
@@ -21,6 +21,7 @@ export default class Tetris {
         this.minos_bag = []
         this.dead = false
         this.event_queue = []
+        this.update_callback = update_callback
     }
 
     spawn_mino() {
@@ -46,7 +47,14 @@ export default class Tetris {
         this.fallen_minos.push(this.active_mino);
     }
     
-    update(input) {
+    update(input, ignore_single = false) {
+        if(ignore_single)
+        {
+            input.move = ''
+            input.rotation = ''
+            input.hold = false
+            input.hard_drop = false
+        }
         this.time = Date.now()
         // if(this.active_mino instanceof Mino) {
         if(this.active_mino) {
@@ -108,6 +116,7 @@ export default class Tetris {
         }
 
         this.check_clear()
+        this.update_callback(this)
     }
 
     das_left() {

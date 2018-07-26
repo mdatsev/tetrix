@@ -76,19 +76,6 @@ export default class KeyboardManager {
     }
 
     get_inputs() {
-        this.time = performance.now()
-        if (this.time - this.right_pressed_time > 119) {
-            if (!this.dasing_right) {
-                this.dasing_right = true
-                this.inputs.push('right_das')
-            }
-        }
-        if (this.time - this.left_pressed_time > 119) {
-            if (!this.dasing_left) {
-                this.dasing_left = true
-                this.inputs.push('left_das')
-            }
-        }
         // console.log(this.inputs)
         let move = this.inputs
             .reduce((ac, e, i, ar) =>
@@ -119,8 +106,21 @@ export default class KeyboardManager {
     }
 
     update_inputs() {
-
-
+        this.time = performance.now()
+        if (this.time - this.right_pressed_time > 119) {
+            if (!this.dasing_right) {
+                this.dasing_right = true
+                this.inputs.push('right_das')
+                this.onchange(this.get_inputs())
+            }
+        }
+        if (this.time - this.left_pressed_time > 119) {
+            if (!this.dasing_left) {
+                this.dasing_left = true
+                this.inputs.push('left_das')
+                this.onchange(this.get_inputs())
+            }
+        }
     }
 
     is_paused() {
