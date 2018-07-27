@@ -1,13 +1,8 @@
-import Lobby from "../schemas/Lobby";
-import User from "../schemas/User";
+import Lobby from "../schemas/Channel"
+import User from "../schemas/User"
 import tetrisMaker from "./tetris.mjs"
-export default function lobbyHandler(io) {
-  let tetrises = []
-  let player_ids = {}
-  io.on('connection', (socket)=>{
-    
-  })
-  var manager = io.of("/game/room").on('connection', function (socket) {
+export default function channelHandler(io) {
+  var manager = io.of("/channel").on('connection', function (socket) {
     let uid;
     let roomid;
     socket.on("disconnect", async()=>{
