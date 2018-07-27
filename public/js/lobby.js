@@ -29,8 +29,8 @@ socket.on('started', function (data) {
 })
 
 socket.on('dead', function(data) {
-    data = data.replaceAll('/', '\\/')
-    $(`#${data}`).append('<p>Dead</p>')
+    data = data.replace(/([/#])/g, "\\$1")
+    $(`#${data}`).append('<div>Dead</div>')
 })
 
 socket.on('message', (data) => {
