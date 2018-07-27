@@ -7,6 +7,7 @@ export default class GameManager {
         this.onupdate = onupdate
         this.ondie = ondie
         this.leaderboard = []
+        this.cur_place = 0
     }
 
     player_join(id, username) {
@@ -18,11 +19,11 @@ export default class GameManager {
                     break
                 case 'dead':
                     this.ondie(tetris)
-                    this.leaderboard.push(tetris.meta.username)
-                    if(this.leaderboard.length === this.tetrises.length - 1)
+                    tetris.meta.place = this.cur_place++
+                    if(this.cur_place == this.tetrises.length - 1)
                     {
-                        this.leaderboard.push(this.tetrises.filter(t => !this.leaderboard.includes(tetris.meta.username))[0])
-                        console.log("leaderboard:", this.leaderboard)
+                        this.tetrises.filter(t => t.meta.place === undefined)[0].meta.place = this.cur_place++
+                        console.log(this.tetrises.sort((a, b) => b.meta.place - a.meta.place).map(t => t.meta.username).join('\n'))
                     }
                     break
                 case 'double':
