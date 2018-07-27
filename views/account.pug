@@ -13,8 +13,8 @@ block content
         | #{skin.name}
         img(src="textures/"+skin.imgPath alt=skin.name height="42" width="42") 
         if(user.equippedSkin.name === skin.name)
-          button(type="button" onclick="equipSkin(\"" + skin.name + "\")" id=skin.name disabled) equipped
+          button(type="button" onclick="equip_skin(\"" + skin.name + "\")" id=skin.name disabled) equipped
         else
-          button(type="button" onclick="equipSkin(\"" + skin.name + "\")" id=skin.name) equip
+          button(type="button" onclick="equip_skin(\"" + skin.name + "\")" id=skin.name) equip
     else
       p No skins

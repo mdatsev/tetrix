@@ -10,7 +10,7 @@ export default class MinoRenderer {
         if(!mino) return
 
         let tiles = mino.get_tiles_on_board()
-        const ts = this.tile_size;
+        const ts = this.tile_size
         for(const tile of tiles) {
             this.renderer.image(mino.meta.ghost ? this.ghost_skin : this.default_skin, ts * (tile[0]), ts * (tile[1]), ts, ts)
         }

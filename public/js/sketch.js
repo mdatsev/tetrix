@@ -1,14 +1,14 @@
 // @ts-check
 /// <reference path="../vendor/p5.d.ts" />
-import Mino from "/common/mino.mjs"
-import Tetris from "/common/tetris.mjs"
-import KeyboardManager from "/js/keyboard_manager.js"
-import TetrisRenderer from "/js/tetris_renderer.js"
+import Mino from '/common/mino.mjs'
+import Tetris from '/common/tetris.mjs'
+import KeyboardManager from '/js/keyboard_manager.js'
+import TetrisRenderer from '/js/tetris_renderer.js'
 
 let default_skin, ghost_skin
 
 let kb_manager = new KeyboardManager((inputs) => {
-    socket.emit('inputs', {inputs});
+    socket.emit('inputs', {inputs})
 })
 
 let keystate = []
@@ -37,8 +37,8 @@ export default function createTetris(parent){
             jQuery.ajaxSetup({async:false})
             let skinPath = $.get('/account/skin').responseJSON.skinPath
             jQuery.ajaxSetup({async:true})
-            default_skin = p.loadImage("/textures/" + skinPath)
-            ghost_skin = p.loadImage("/textures/ghost.png")
+            default_skin = p.loadImage('/textures/' + skinPath)
+            ghost_skin = p.loadImage('/textures/ghost.png')
             renderer = new TetrisRenderer(p, tile_size,5,default_skin,ghost_skin)
         }
     
@@ -65,7 +65,7 @@ export default function createTetris(parent){
                 if(data.id == parent){ 
                     tetris.deserialize(data.data)
                 }
-            });
+            })
         }
         
         p.draw = () => {

@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose'
+const Schema = mongoose.Schema
 const ObjectId= Schema.Types.ObjectId
 const channelSchema = new Schema({
     name:String,
@@ -23,4 +23,4 @@ channelSchema.path('messages').validate(function() {
   
 const Channel =  mongoose.model("Channel", channelSchema)
 
-export default Channel;
+export default Channel

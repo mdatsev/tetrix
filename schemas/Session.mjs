@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
-const Schema = mongoose.Schema;
+import mongoose from 'mongoose'
+const Schema = mongoose.Schema
 const sessionSchema = new Schema({
-  username:String,
-  token:String
-});
-const Session =  mongoose.model("Session", sessionSchema)
+    username:String,
+    token:String
+})
+const Session =  mongoose.model('Session', sessionSchema)
 
-export default Session;
+export default Session

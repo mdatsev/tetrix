@@ -23,37 +23,37 @@ export default class KeyboardManager {
         this.onchange = onchange
     }
 
-    keyPressed(keyCode, tetris) {
+    keyPressed(keyCode) {
         const isKeyFor = action => this.keybinds[action].includes(keyCode)
         if (isKeyFor('PAUSE')) {
             this.paused = !this.paused
         }
         if (!this.paused)
             switch (true) {
-                case isKeyFor('MOVE_LEFT'):
-                    this.leftPressed()
-                    break;
-                case isKeyFor('ROTATE_CW'):
-                    this.rotation = 'cw'
-                    break;
-                case isKeyFor('ROTATE_CCW'):
-                    this.rotation = 'ccw'
-                    break;
-                case isKeyFor('ROTATE_180'):
-                    this.rotation = '180'
-                    break;
-                case isKeyFor('MOVE_RIGHT'):
-                    this.rightPressed()
-                    break;
-                case isKeyFor('SOFT_DROP'):
-                    this.softDropPressed()
-                    break;
-                case isKeyFor('HARD_DROP'):
-                    this.hard_drop = true
-                    break;
-                case isKeyFor('HOLD_MINO'):
-                    this.hold = true
-                    break;
+            case isKeyFor('MOVE_LEFT'):
+                this.leftPressed()
+                break
+            case isKeyFor('ROTATE_CW'):
+                this.rotation = 'cw'
+                break
+            case isKeyFor('ROTATE_CCW'):
+                this.rotation = 'ccw'
+                break
+            case isKeyFor('ROTATE_180'):
+                this.rotation = '180'
+                break
+            case isKeyFor('MOVE_RIGHT'):
+                this.rightPressed()
+                break
+            case isKeyFor('SOFT_DROP'):
+                this.softDropPressed()
+                break
+            case isKeyFor('HARD_DROP'):
+                this.hard_drop = true
+                break
+            case isKeyFor('HOLD_MINO'):
+                this.hold = true
+                break
             }
         this.onchange(this.get_inputs())
     }
@@ -62,15 +62,15 @@ export default class KeyboardManager {
         const isKeyFor = action => this.keybinds[action].includes(keyCode)
         if (!this.paused)
             switch (true) {
-                case isKeyFor('MOVE_LEFT'):
-                    this.leftReleased()
-                    break;
-                case isKeyFor('MOVE_RIGHT'):
-                    this.rightReleased()
-                    break;
-                case isKeyFor('SOFT_DROP'):
-                    this.softDropReleased()
-                    break;
+            case isKeyFor('MOVE_LEFT'):
+                this.leftReleased()
+                break
+            case isKeyFor('MOVE_RIGHT'):
+                this.rightReleased()
+                break
+            case isKeyFor('SOFT_DROP'):
+                this.softDropReleased()
+                break
             }
         this.onchange(this.get_inputs())
     }
@@ -83,8 +83,7 @@ export default class KeyboardManager {
                     ? [...ac, 'left_das-1']
                     : ar[i - 1] == 'right_das' && e == 'left'
                         ? [...ac, 'right_das-1']
-                        : [...ac, e], [])
-                            [this.inputs.length - 1]
+                        : [...ac, e], [])[this.inputs.length - 1]
         if ((move == 'left' && this.moved_left) || (move == 'right' && this.moved_right))
             move = ''
         else if (move == 'left' || move == 'right_das-1')

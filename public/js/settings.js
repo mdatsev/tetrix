@@ -1,5 +1,3 @@
-import { ENETUNREACH } from "constants";
-
 export default class Settings {
     constructor () {
         this.keybinds = {

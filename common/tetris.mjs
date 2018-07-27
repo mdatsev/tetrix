@@ -1,8 +1,8 @@
 // @ts-check
-import Mino from "./mino.mjs"
+import Mino from './mino.mjs'
 
 export default class Tetris {
-    constructor(pieces, wallkick_data, update_callback) {
+    constructor(pieces, wallkick_data, event_callback) {
         this.lock_delay_default = 1500
         this.current_lock_delay = this.lock_delay_default
         this.last_time_diff = 0
@@ -13,41 +13,47 @@ export default class Tetris {
         this.wallkick_data = wallkick_data || {'default': [[0, 0]]}
         this.width = 10
         this.height = 40
-        this.visible_height = this.height / 2;
-        this.can_hold = false;
+        this.visible_height = this.height / 2
+        this.can_hold = false
         this.active_mino = null //trqq 
         this.holded_mino = null // meta letter
         this.fallen_minos = []
         this.minos_bag = []
         this.dead = false
-        this.event_queue = []
-        this.update_callback = update_callback
+        this.event_callback = event_callback
+        this.meta = {}
     }
 
     spawn_mino() {
-        this.can_hold = true;
+        this.can_hold = true
         if(this.minos_bag.length <= 5) {
-            this.generate_bag();
+            this.generate_bag()
         }
-        const letter = this.minos_bag.shift();
+        const letter = this.minos_bag.shift()
         const srs_mino = [...this.pieces[letter]]
         
-        this.active_mino = new Mino(srs_mino, Math.floor((this.width - 4) / 2), 0, {letter})
+        this.active_mino = new Mino(srs_mino, Math.floor((this.width - 4) / 2), this.height - this.visible_height, {letter})
         
         if(this.mino_collides())
+        {
             this.dead = true
+            this.event('dead')
+        }
     }
 
     generate_bag() {
         const letters = [...'LJSZTOI']
-        this.minos_bag.push(...shuffle(letters));
+        this.minos_bag.push(...shuffle(letters))
     }
     
     lock_mino() {
-        this.fallen_minos.push(this.active_mino);
+        this.fallen_minos.push(this.active_mino)
     }
     
     update(input, ignore_single = false) {
+        if(this.dead)
+            return
+        
         if(ignore_single)
         {
             input.move = ''
@@ -77,34 +83,34 @@ export default class Tetris {
             this.spawn_mino()
         }
         switch(input.move) {
-            case 'right_das':
-                this.das_right()
-                break
-            case 'left_das':
-                this.das_left()
-                break
-            case 'right_das-1':
-                this.das_right()
-            case 'left':
-                this.move_left()
-                break
-            case 'left_das-1':
-                this.das_left()
-            case 'right':
-                this.move_right()
-                break
+        case 'right_das':
+            this.das_right()
+            break
+        case 'left_das':
+            this.das_left()
+            break
+        case 'right_das-1':
+            this.das_right()
+        case 'left':
+            this.move_left()
+            break
+        case 'left_das-1':
+            this.das_left()
+        case 'right':
+            this.move_right()
+            break
         }
 
         switch(input.rotation) {
-            case 'cw':
-                this.rotate_cw()
-                break
-            case 'ccw':
-                this.rotate_ccw()
-                break
-            case '180':
-                this.rotate_180()
-                break
+        case 'cw':
+            this.rotate_cw()
+            break
+        case 'ccw':
+            this.rotate_ccw()
+            break
+        case '180':
+            this.rotate_180()
+            break
         }
 
         if(input.hold) {
@@ -116,7 +122,7 @@ export default class Tetris {
         }
 
         this.check_clear()
-        this.update_callback(this)
+        this.event('update')
     }
 
     das_left() {
@@ -165,7 +171,7 @@ export default class Tetris {
         this.time = Date.now()
         if(!this.move_mino(mino, 0, 1)) {
             if(spawn) {
-               this.check_lock(ignore_lock_delay)
+                this.check_lock(ignore_lock_delay)
             }
             return false
         }else {
@@ -180,7 +186,7 @@ export default class Tetris {
     }
 
     check_clear() {
-        let lines = new Array(this.visible_height).fill(null).map(_=>[])
+        let lines = new Array(this.height).fill(null).map(_=>[])
         for(const tile of this.get_real_solid_tiles())
         {
             lines[tile[1]].push(tile)
@@ -189,7 +195,7 @@ export default class Tetris {
         {
             if(line.length == this.width)
             {
-                this.event_queue.push('line_clear')
+                this.event('line_clear')
                 for(let mino of this.fallen_minos)
                 {
                     for(const tile of line)
@@ -201,20 +207,24 @@ export default class Tetris {
         }
     }
 
+    event(ev) {
+        this.event_callback(ev, this)
+    }
+
     mino_collides(mino = this.active_mino) {
         return this.get_solid_tiles()
-                .some(t => mino.get_tiles_on_board()
-                    .some(t1 => t[0] == t1[0] && 
-                                t[1] == t1[1]))
+            .some(t => mino.get_tiles_on_board()
+                .some(t1 => t[0] == t1[0] && 
+                            t[1] == t1[1]))
     }
 
     get_solid_tiles() {
         const widths = [...Array(this.width).keys()];
-        const heights = [...Array(this.visible_height).keys()]
+        const heights = [...Array(this.height).keys()]
         return this.get_real_solid_tiles()
             .concat(widths.map(e => [e, -1]))
             .concat(heights.map(e => [-1, e]))
-            .concat(widths.map(e => [e, this.visible_height]))
+            .concat(widths.map(e => [e, this.height]))
             .concat(heights.map(e => [this.width, e]))
     }
 
@@ -222,7 +232,7 @@ export default class Tetris {
         return this.fallen_minos
             .map(mino => mino.get_tiles_on_board())
             .reduce((a, e) => a.concat(e), [])
-            .filter(e => e[1] < this.visible_height)
+            // .filter(e => e[1] < this.visible_height)
     }
 
     rotate(state) {
@@ -272,17 +282,17 @@ export default class Tetris {
     hold_mino() {
         if(this.can_hold) {
             if(this.holded_mino == null) {
-                this.holded_mino = this.active_mino.clone();
+                this.holded_mino = this.active_mino.clone()
                 this.spawn_mino()
             } else {
-                this.holded_mino.x = Math.floor((this.width - 4) / 2);
-                this.holded_mino.y = 0;
-                let tmp_mino = this.holded_mino;
-                this.holded_mino = this.active_mino;
-                this.active_mino = tmp_mino;
-                this.active_mino.last_drop_tick = Date.now();
+                this.holded_mino.x = Math.floor((this.width - 4) / 2)
+                this.holded_mino.y = 0
+                let tmp_mino = this.holded_mino
+                this.holded_mino = this.active_mino
+                this.active_mino = tmp_mino
+                this.active_mino.last_drop_tick = Date.now()
             }
-            this.can_hold = false;
+            this.can_hold = false
         }
     }
     serialize() {
@@ -291,7 +301,7 @@ export default class Tetris {
             active_mino: this.active_mino && this.active_mino.serialize(),
             holded_mino: this.holded_mino && this.holded_mino.meta.letter,
             minos_bag: this.minos_bag,
-            fallen_minos: this.fallen_minos
+            fallen_minos: this.fallen_minos.map(m => m.serialize_static())
         }
     }
     deserialize(data) {
@@ -310,16 +320,16 @@ export default class Tetris {
 }
 
 function shuffle(array) {
-    var current_index = array.length, temporary_value, random_index;
+    var current_index = array.length, temporary_value, random_index
 
     while (0 !== current_index) {
-      random_index = Math.floor(Math.random() * current_index);
-      current_index -= 1;
+        random_index = Math.floor(Math.random() * current_index)
+        current_index -= 1
 
-      temporary_value = array[current_index];
-      array[current_index] = array[random_index];
-      array[random_index] = temporary_value;
+        temporary_value = array[current_index]
+        array[current_index] = array[random_index]
+        array[random_index] = temporary_value
     }
   
-    return array;
+    return array
 }
