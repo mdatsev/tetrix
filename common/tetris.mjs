@@ -2,7 +2,7 @@
 import Mino from "./mino.mjs"
 
 export default class Tetris {
-    constructor(pieces, wallkick_data, update_callback) {
+    constructor(pieces, wallkick_data, event_callback) {
         this.lock_delay_default = 1500
         this.current_lock_delay = this.lock_delay_default
         this.last_time_diff = 0
@@ -20,8 +20,8 @@ export default class Tetris {
         this.fallen_minos = []
         this.minos_bag = []
         this.dead = false
-        this.event_queue = []
-        this.update_callback = update_callback
+        this.event_callback = event_callback
+        this.meta = {}
     }
 
     spawn_mino() {
@@ -32,10 +32,13 @@ export default class Tetris {
         const letter = this.minos_bag.shift();
         const srs_mino = [...this.pieces[letter]]
         
-        this.active_mino = new Mino(srs_mino, Math.floor((this.width - 4) / 2), 0, {letter})
+        this.active_mino = new Mino(srs_mino, Math.floor((this.width - 4) / 2), this.height - this.visible_height, {letter})
         
         if(this.mino_collides())
+        {
             this.dead = true
+            this.event('dead')
+        }
     }
 
     generate_bag() {
@@ -48,6 +51,9 @@ export default class Tetris {
     }
     
     update(input, ignore_single = false) {
+        if(this.dead)
+            return
+        
         if(ignore_single)
         {
             input.move = ''
@@ -116,7 +122,7 @@ export default class Tetris {
         }
 
         this.check_clear()
-        this.update_callback(this)
+        this.event('update')
     }
 
     das_left() {
@@ -180,7 +186,7 @@ export default class Tetris {
     }
 
     check_clear() {
-        let lines = new Array(this.visible_height).fill(null).map(_=>[])
+        let lines = new Array(this.height).fill(null).map(_=>[])
         for(const tile of this.get_real_solid_tiles())
         {
             lines[tile[1]].push(tile)
@@ -189,7 +195,7 @@ export default class Tetris {
         {
             if(line.length == this.width)
             {
-                this.event_queue.push('line_clear')
+                this.event('line_clear')
                 for(let mino of this.fallen_minos)
                 {
                     for(const tile of line)
@@ -201,6 +207,10 @@ export default class Tetris {
         }
     }
 
+    event(ev) {
+        this.event_callback(ev, this)
+    }
+
     mino_collides(mino = this.active_mino) {
         return this.get_solid_tiles()
                 .some(t => mino.get_tiles_on_board()
@@ -210,11 +220,11 @@ export default class Tetris {
 
     get_solid_tiles() {
         const widths = [...Array(this.width).keys()];
-        const heights = [...Array(this.visible_height).keys()]
+        const heights = [...Array(this.height).keys()]
         return this.get_real_solid_tiles()
             .concat(widths.map(e => [e, -1]))
             .concat(heights.map(e => [-1, e]))
-            .concat(widths.map(e => [e, this.visible_height]))
+            .concat(widths.map(e => [e, this.height]))
             .concat(heights.map(e => [this.width, e]))
     }
 
@@ -222,7 +232,7 @@ export default class Tetris {
         return this.fallen_minos
             .map(mino => mino.get_tiles_on_board())
             .reduce((a, e) => a.concat(e), [])
-            .filter(e => e[1] < this.visible_height)
+            // .filter(e => e[1] < this.visible_height)
     }
 
     rotate(state) {
@@ -291,7 +301,7 @@ export default class Tetris {
             active_mino: this.active_mino && this.active_mino.serialize(),
             holded_mino: this.holded_mino && this.holded_mino.meta.letter,
             minos_bag: this.minos_bag,
-            fallen_minos: this.fallen_minos
+            fallen_minos: this.fallen_minos.map(m => m.serialize_static())
         }
     }
     deserialize(data) {

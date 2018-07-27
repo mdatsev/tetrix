@@ -16,6 +16,6 @@ for (const mino in SRS) {
             return tiles
         })
 }
-export default function tetrisMaker(update_callback){
-        return new Tetris(SRS_tiles, SRS_wallkick, update_callback)
+export default function tetrisMaker(event_callback) {
+        return new Tetris(SRS_tiles, SRS_wallkick, event_callback)
 }

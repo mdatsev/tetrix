@@ -8,7 +8,14 @@ export default class GameManager {
     }
 
     player_join(id, username) {
-        let t = DefaultTetris(this.onupdate)
+        let t = DefaultTetris((ev, tetris) => {
+            switch(ev) {
+                case 'update':
+                    this.onupdate(tetris)
+                default:
+                    console.log(ev)
+            }
+        })
         t.meta.id = id
         t.meta.username = username
         this.tetrises.push(t)

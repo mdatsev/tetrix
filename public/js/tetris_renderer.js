@@ -4,20 +4,23 @@ import Mino from "/common/mino.mjs"
 export default class TetrisRenderer {
     constructor(renderer, tile_size, queue_size, default_skin, ghost_skin) {
         this.tile_size = tile_size
-        this.queue_size = queue_size;
-        this.renderer  = renderer
+        this.queue_size = queue_size
+        /** @type { p5 } */
+        this.renderer = renderer
         this.mino_renderer = new MinoRenderer({tile_size: this.tile_size, renderer:this.renderer, default_skin:default_skin, ghost_skin:ghost_skin})
     }
     render(tetris) {
         this.renderer.translate(6 * this.tile_size, 0)
         this.renderer.background(0)
+        this.renderer.push()
+        this.renderer.translate(0, -(tetris.height - tetris.visible_height) * this.tile_size)
         for (const mino of tetris.fallen_minos) {
             this.mino_renderer.render(mino)
         }
-        this.renderer.fill([255, 0, 0])
-        
         this.render_ghost(tetris)
         this.mino_renderer.render(tetris.active_mino)
+        this.renderer.pop()
+        
     }
 
     render_ghost(tetris) {
