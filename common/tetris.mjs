@@ -1,5 +1,6 @@
 // @ts-check
 import Mino from './mino.mjs'
+import Score from './score.mjs'
 
 export default class Tetris {
     constructor(pieces, wallkick_data, event_callback) {
@@ -22,6 +23,7 @@ export default class Tetris {
         this.dead = false
         this.event_callback = event_callback
         this.meta = {}
+        this.score = new Score()
     }
 
     spawn_mino() {
@@ -191,6 +193,8 @@ export default class Tetris {
         {
             lines[tile[1]].push(tile)
         }
+
+        let lines_count = 0
         for(const line of lines)
         {
             if(line.length == this.width)
@@ -203,7 +207,20 @@ export default class Tetris {
                         mino.destroy_tile_on_board(tile)
                     }
                 }
+                lines_count++
             }
+        }
+
+        switch(lines_count) {
+            case 2:
+                this.score.update('double')
+                break
+            case 3:
+                this.score.update('triple')
+                break
+            case 4:
+                this.score.update('tetris')
+                break
         }
     }
 

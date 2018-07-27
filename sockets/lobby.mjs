@@ -3,18 +3,20 @@
 import Lobby from "../schemas/Lobby";
 import User from "../schemas/User";
 import GameManager from "../common/game_manager.mjs";
+import Channel from "../schemas/Channel"
 export default function lobbyHandler(io) {
     let rooms = {}
-    let player_ids = {}
-    io.on('connection', (socket) => {
 
-    })
     var manager = io.of("/game/room").on('connection', function (socket) {
         let uid;
         let roomid;
         let last_inputs;
         socket.on("disconnect", async () => {
             rooms[roomid].player_leave(socket.id)
+            if(rooms[roomid].tetrises.length == 0) {
+                delete rooms[roomid]
+            }
+
             // clearInterval(tetrises.filter(t => t.id == socket.id)[0].timer_id)
             // let lobby = await Lobby.findOneAndUpdate({ link: roomid }, { $pullAll: { players: [uid] } }, { "new": true }).exec()
 
@@ -45,7 +47,9 @@ export default function lobbyHandler(io) {
         socket.on("join", async (pkg) => {
             roomid = pkg.roomID
             if(!rooms[roomid])
-                rooms[roomid] = new GameManager(t => manager.to(roomid).emit('sync', {data:t.serialize(), id:t.meta.id}))
+                rooms[roomid] = new GameManager(
+                    t => manager.to(roomid).emit('sync', {data:t.serialize(), id:t.meta.id}),
+                    t => manager.to(roomid).emit('dead', t.meta.id))
             console.log(socket.id)
             rooms[roomid].player_join(socket.id, pkg.username)
             socket.join(pkg.roomID);
@@ -68,6 +72,8 @@ export default function lobbyHandler(io) {
         })
 
     socket.on('message', async (data) => {
+
+
       manager.to(roomid).emit('message',data);
     })
   })

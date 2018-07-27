@@ -2,9 +2,10 @@
 import DefaultTetris from "./default_tetris.mjs"
 
 export default class GameManager {
-    constructor(onupdate) {
+    constructor(onupdate, ondie) {
         this.tetrises = []
         this.onupdate = onupdate
+        this.ondie = ondie
     }
 
     player_join(id, username) {
@@ -12,6 +13,10 @@ export default class GameManager {
             switch(ev) {
                 case 'update':
                     this.onupdate(tetris)
+                    break
+                case 'dead':
+                    this.ondie(tetris)
+                    break
                 default:
                     console.log(ev)
             }
@@ -34,6 +39,7 @@ export default class GameManager {
     player_leave(id) {
         let t = this.tetrises.find(t => t.meta.id === id)
         clearInterval(t.timer_id)
+        this.tetrises.splice(this.tetrises.indexOf(t))
     }
 
     input(id, inputs) {
