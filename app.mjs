@@ -9,7 +9,7 @@ import gameGetRouter from "./routes/game_get";
 import accountGetRouter from "./routes/account_get";
 import shopGetRouter from "./routes/shop_get";
 import lobbyHandler from "./sockets/lobby";
-import tetrisHandler from "./sockets/tetris";
+// import tetrisHandler from "./sockets/tetris";
 
 var __dirname = path.dirname(new URL(import.meta.url).pathname);
 if(process.platform == "win32") {
@@ -88,6 +88,6 @@ let server = app.listen(3000,(err)=>{
 
 let io = socket(server)
 lobbyHandler(io)
-tetrisHandler(io)
+// tetrisHandler(io)
 
 export default app;
