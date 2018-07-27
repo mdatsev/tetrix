@@ -24,15 +24,15 @@
     background-image:url('tetrix.png');
   }
   div {
-    height: 10em;
+    /* height: 10em;
     display: flex;
     align-items: center;
     justify-content: center;
-    vertical-align: middle;
+    vertical-align: middle; */
   }
   a {
     margin-right: 10%;
   }
   div {
-    margin: 0 
+    margin: 0
   }
