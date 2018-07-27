@@ -334,6 +334,22 @@ export default class Tetris {
         this.fallen_minos = data.fallen_minos.map(m => Mino.from(m))
         //this.fallen_minos = 
     }
+
+    send_garbage(pos, height) {
+        let tiles = []
+        for(let x = 0; x < this.width; x++) {
+            for(let y = 0; y < height; y++)
+            {
+                if(x !== pos)
+                    tiles.push([x, y])
+            }
+        }
+        let garbage_mino = new Mino([tiles], 0, this.height - height)
+        console.log(tiles)
+        for(let mino of this.fallen_minos)
+            mino.y -= height
+        this.fallen_minos.push(garbage_mino)
+    }
 }
 
 function shuffle(array) {
