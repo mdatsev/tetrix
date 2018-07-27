@@ -55,6 +55,15 @@ export default class Mino {
         }
     }
 
+    serialize_static() {
+        return {
+            current_rotation: 0,
+            x: this.x,
+            y: this.y,
+            rotations: this.rotations.filter((_, i) => i === this.current_rotation)
+        }
+    }
+
     static from(obj) {
         if(!obj) return obj
         let ret = new Mino(obj.rotations, obj.x, obj.y, obj.meta)
