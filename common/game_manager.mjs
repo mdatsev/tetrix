@@ -6,16 +6,34 @@ export default class GameManager {
         this.tetrises = []
         this.onupdate = onupdate
         this.ondie = ondie
+        this.leaderboard = []
+        this.cur_place = 0
     }
 
     player_join(id, username) {
         let t = DefaultTetris((ev, tetris) => {
+            let random_opponent = this.tetrises.filter(t => t.meta.id !== tetris.meta.id)[Math.floor(Math.random() * this.tetrises.length)] || {send_garbage:_=>{}}
             switch(ev) {
                 case 'update':
                     this.onupdate(tetris)
                     break
                 case 'dead':
                     this.ondie(tetris)
+                    tetris.meta.place = this.cur_place++
+                    if(this.cur_place == this.tetrises.length - 1)
+                    {
+                        this.tetrises.filter(t => t.meta.place === undefined)[0].meta.place = this.cur_place++
+                        console.log(this.tetrises.sort((a, b) => b.meta.place - a.meta.place).map(t => t.meta.username).join('\n'))
+                    }
+                    break
+                case 'double':
+                    random_opponent.send_garbage(Math.floor(Math.random() * 10), 1)
+                    break
+                case 'triple':
+                    random_opponent.send_garbage(Math.floor(Math.random() * 10), 2)
+                    break
+                case 'tetris':
+                    random_opponent.send_garbage(Math.floor(Math.random() * 10), 4)
                     break
                 default:
                     console.log(ev)

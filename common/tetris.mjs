@@ -198,8 +198,7 @@ export default class Tetris {
         for(const line of lines)
         {
             if(line.length == this.width)
-            {
-                this.event('line_clear')
+            { 
                 for(let mino of this.fallen_minos)
                 {
                     for(const tile of line)
@@ -212,19 +211,23 @@ export default class Tetris {
         }
 
         switch(lines_count) {
+            case 1:
+                this.event('single')
+                break
             case 2:
-                this.score.update('double')
+                this.event('double')
                 break
             case 3:
-                this.score.update('triple')
+                this.event('triple')
                 break
             case 4:
-                this.score.update('tetris')
+                this.event('tetris')
                 break
         }
     }
 
     event(ev) {
+        this.score.update(ev)
         this.event_callback(ev, this)
     }
 
