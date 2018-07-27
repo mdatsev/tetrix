@@ -30,9 +30,9 @@ export default class Mino {
     }
 
     clone() {
-        const m = new Mino([...this.rotations], this.x, this.y, {...this.meta});
-        m.current_rotation = this.current_rotation;
-        return m;
+        const m = new Mino([...this.rotations], this.x, this.y, {...this.meta})
+        m.current_rotation = this.current_rotation
+        return m
     }
 
     move(x_or_xy, y) {
@@ -59,6 +59,6 @@ export default class Mino {
         if(!obj) return obj
         let ret = new Mino(obj.rotations, obj.x, obj.y, obj.meta)
         ret.current_rotation = obj.current_rotation
-        return Object.assign(ret, obj);
+        return Object.assign(ret, obj)
     }
 }
