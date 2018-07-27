@@ -11,7 +11,7 @@ socket.emit('join', {roomID, username:window.username})
 
 socket.on('player_join', function (data) {
     $('#users').empty()
-    data.forEach(player=>{
+    data.forEach(player=> {
         $('#users').append($(`<li>${player.username}</li>`).attr('data-id', player.id))
     })
 })
@@ -26,6 +26,11 @@ socket.on('started', function (data) {
         $('body').append(`<div id=${data.player_ids[i]}></div>`)
         createTetris(data.player_ids[i].toString())
     }
+})
+
+socket.on('dead', function(data) {
+    data = data.replaceAll('/', '\\/')
+    $(`#${data}`).append('<p>Dead</p>')
 })
 
 socket.on('message', (data) => {

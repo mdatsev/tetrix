@@ -303,7 +303,7 @@ export default class Tetris {
                 this.spawn_mino()
             } else {
                 this.holded_mino.x = Math.floor((this.width - 4) / 2)
-                this.holded_mino.y = 0
+                this.holded_mino.y = this.height - this.visible_height
                 let tmp_mino = this.holded_mino
                 this.holded_mino = this.active_mino
                 this.active_mino = tmp_mino
